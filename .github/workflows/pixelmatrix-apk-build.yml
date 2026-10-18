@@ -1,4 +1,4 @@
-name: PixelMatrix Studio APK
+name: PixelMatrix Studio Premium APK
 on:
   push:
     branches: [pixelmatrix-studio-apk-build]
@@ -27,11 +27,39 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Unpack bundled 100 animation GIFs
-        run: unzip -q -o gallery_bundle.zip -d app/src/main/assets/
-      - run: gradle :app:assembleDebug --no-daemon --stacktrace
+      - name: Install pixel-art compiler
+        run: python3 -m pip install --quiet --user pillow
+      - name: Download CC0 professional sprite artwork
+        run: |
+          mkdir -p /tmp/pm_packs
+          git clone --depth 1 https://github.com/marpor/PixelAdventure.git /tmp/pm_packs/frog
+          git clone --depth 1 https://github.com/pixel-boy/NinjaAdventure.git /tmp/pm_packs/ninja
+      - name: Compile premium animated art and offline catalog
+        run: python3 tools/generate_premium_gallery.py --frog /tmp/pm_packs/frog --ninja /tmp/pm_packs/ninja --output app/src/main/assets/gallery
+      - name: Validate 200 GIF package before Android compile
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          base=Path('app/src/main/assets');catalog=json.loads((base/'gallery-catalog.json').read_text())
+          assert len(catalog['samples'])==200
+          for item in catalog['samples']:
+              with Image.open(base/'gallery'/item['file']) as im:
+                  assert im.size==(64,64) and im.n_frames==8
+          assert 'versionName \'2.1.0\'' in Path('app/build.gradle').read_text()
+          assert 'PixelMatrix Studio 2.1' in (base/'index.html').read_text()
+          print('PASS: 200 professional 64x64 sprites; version 2.1.0 verified')
+          PY
+      - name: Build Android APK
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-APK
+          name: PixelMatrixStudio-v2.1-APK
           path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PixelMatrixStudio-Premium200-GIF
+          path: pixelmatrix/PixelMatrix_Studio_Premium_200_GIF.zip
           retention-days: 30

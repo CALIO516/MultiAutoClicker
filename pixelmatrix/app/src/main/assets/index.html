@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=auto"><meta name="theme-color" content="#090b10">
-<title>PixelMatrix Studio 1.3 — LED 픽셀 스튜디오</title>
+<title>PixelMatrix Studio 2.1 — LED 픽셀 스튜디오</title>
 <style>
 :root{--bg:#0a0c13;--pane:#141824;--pane2:#1a2030;--line:#293247;--text:#eff2fb;--sub:#9aa8c1;--accent:#79e0c7;--gold:#ffd28f;--rad:17px;--shadow:0 18px 50px #0004;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 5%,#18263c 0,transparent 33%),radial-gradient(ellipse at 90% 0,#271d36 0,transparent 30%),var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,'Noto Sans KR',sans-serif;min-height:100vh}
@@ -197,7 +197,7 @@ input[type=range]{accent-color:#9299fc}input[type=checkbox]{accent-color:#9299fc
 @media(prefers-reduced-motion:reduce){button,.toast{transition:none!important}}
 
 
-/* v1.3 — responsive geometry audit: consistent tap regions and spacing. */
+/* responsive geometry audit: consistent tap regions and spacing. */
 html, body {max-width:100%; overflow-x:hidden}
 .page {min-width:0}
 .topBtns button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;text-align:center}
@@ -301,7 +301,7 @@ html, body {max-width:100%; overflow-x:hidden}
 @media(max-width:360px){.topBtns button{font-size:9px;min-height:58px}.topBtns button span:last-child{font-size:9px}.galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 
-/* Gallery v2.0: pixel-perfect cards, compact category picker and clipped text */
+/* Gallery v2.1: pixel-perfect cards, compact category picker and clipped text */
 .galleryCategorySelect{width:100%;min-width:0;min-height:43px;font-size:13px;padding:10px 13px;color:var(--text);background:#111a2b;border:1px solid #47536b;border-radius:10px;margin:0 0 2px}
 .galleryCategories{padding-top:8px;padding-bottom:9px}
 .galleryItem{overflow:hidden;min-height:148px;gap:7px;padding:10px 7px;justify-content:flex-start;border-color:#344259;background:linear-gradient(180deg,#111b2b,#0d111d)}
@@ -316,7 +316,7 @@ html, body {max-width:100%; overflow-x:hidden}
 </head>
 <body>
 <div class="page">
-<header class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="12" y="3" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="3" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="12" y="12" width="6" height="6" rx="1" fill="#102b32"/><rect x="21" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="3" y="21" width="6" height="6" rx="1" fill="#102b32"/><rect x="12" y="21" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="21" width="6" height="6" rx="1" fill="#102b32"/></svg></div><div><h1>PIXELMATRIX <span class="brandSub">Studio</span></h1><p>픽셀 아트 · GIF · LED 디스플레이</p></div><div class="quickConnect"><button id="topConnectBtn">⌁ 기기 연결</button></div></div><div class="topBtns"><button id="newBtn"><span class="topActionIcon">＋</span><span>새 작업</span></button><button id="gifTopBtn"><span class="topActionIcon">▦</span><span>GIF 변환</span></button><button id="openBtn"><span class="topActionIcon">↥</span><span>프로젝트<br>불러오기</span></button><button id="projectSaveBtn" class="primary"><span class="topActionIcon">✓</span><span>프로젝트<br>저장</span></button></div></header>
+<header class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="12" y="3" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="3" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="12" y="12" width="6" height="6" rx="1" fill="#102b32"/><rect x="21" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="3" y="21" width="6" height="6" rx="1" fill="#102b32"/><rect x="12" y="21" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="21" width="6" height="6" rx="1" fill="#102b32"/></svg></div><div><h1>PIXELMATRIX <span class="brandSub">Studio</span> <span style="font-size:11px;vertical-align:middle;border-radius:999px;border:1px solid #7182a7;background:#253047;color:#c9e0ff;padding:3px 7px;letter-spacing:0">v2.1</span></h1><p>픽셀 아트 · GIF · LED 디스플레이</p></div><div class="quickConnect"><button id="topConnectBtn">⌁ 기기 연결</button></div></div><div class="topBtns"><button id="newBtn"><span class="topActionIcon">＋</span><span>새 작업</span></button><button id="gifTopBtn"><span class="topActionIcon">▦</span><span>GIF 변환</span></button><button id="openBtn"><span class="topActionIcon">↥</span><span>프로젝트<br>불러오기</span></button><button id="projectSaveBtn" class="primary"><span class="topActionIcon">✓</span><span>프로젝트<br>저장</span></button></div></header>
 <nav class="mobileNav" aria-label="작업 메뉴"><button data-goto="scene" class="on" aria-label="픽셀 편집"><span class="navGlyph" aria-hidden="true">▦</span><span>편집</span></button><button data-goto="left" aria-label="그리기 도구"><span class="navGlyph" aria-hidden="true">✎</span><span>도구</span></button><button data-goto="right" aria-label="GIF와 샘플"><span class="navGlyph" aria-hidden="true">▣</span><span>GIF</span></button><button data-goto="device" aria-label="LED 기기"><span class="navGlyph" aria-hidden="true">⌁</span><span>기기</span></button></nav>
 <div class="work"><aside class="card left" id="left"><h2>도구 상자 <span class="badgeNum" id="sizeTag">32×32</span></h2><div class="toolbar" id="tools"><button class="tool on" data-tool="pen" title="그리기">✎<span>펜</span></button><button class="tool" data-tool="erase" title="지우개">⌫<span>지우기</span></button><button class="tool" data-tool="fill" title="영역 채우기">▨<span>채우기</span></button><button class="tool" data-tool="pick" title="색상 선택">◉<span>스포이트</span></button><button class="tool" data-tool="line" title="선">╱<span>직선</span></button><button class="tool" data-tool="rect" title="사각형">▢<span>사각형</span></button><button class="tool" data-tool="ellipse" title="원">◯<span>원</span></button><button class="tool" data-tool="spark" title="무작위 반짝임">✦<span>반짝임</span></button></div>
 <div class="field"><label for="color">현재 색상</label><div class="cflex"><input type="color" id="color" value="#ffcf94" aria-label="현재 색상"><input id="hexColor" class="fill" value="#FFCF94" maxlength="7" aria-label="16진수 색상"><button id="defaultPaletteBtn" title="팔레트 전환">⇄</button></div><div class="swatches" id="swatches"></div></div>
@@ -364,13 +364,13 @@ html, body {max-width:100%; overflow-x:hidden}
 <aside class="card right" id="right">
 <h2 class="rightHeader">GIF · 16비트 감성 라이브러리</h2>
 <section class="galleryPanel" aria-label="200종 움직이는 샘플">
- <div class="galleryIntro"><strong>움직이는 픽셀 도트 <span class="badgeNum">200종</span></strong><p>16비트 고전게임 감성 · 20개 테마 · 전부 오프라인 제공</p></div>
+ <div class="galleryIntro"><strong>움직이는 픽셀 도트 <span class="badgeNum">200종</span></strong><p>정교한 레트로 게임 스프라이트 · 전문 CC0 원화 기반 · 오프라인 200종</p></div>
  <label class="gallerySearchLabel" for="gallerySearch">샘플 검색</label>
- <input id="gallerySearch" type="search" placeholder="예: RPG, OPEN, 카페, 공사, 스포츠, UFO" autocomplete="off">
+ <input id="gallerySearch" type="search" placeholder="예: 닌자, 몬스터, 점프, 카페, OPEN, SALE" autocomplete="off">
  <label class="gallerySearchLabel" for="galleryCategorySelect">분류 선택</label>
  <select id="galleryCategorySelect" class="galleryCategorySelect" aria-label="샘플 분류 선택"></select>
  <div class="galleryCategories" id="galleryCategories" aria-label="빠른 분류"></div>
- <div class="galleryInfo"><span id="galleryCount">200종</span><span>32 × 32 · 움직이는 GIF</span></div>
+ <div class="galleryInfo"><span id="galleryCount">200종</span><span>64 × 64 원화 · 8프레임 애니메이션</span></div>
  <div id="galleryGrid" class="galleryGrid"></div>
  <button type="button" id="galleryMore" class="galleryMore" hidden>샘플 더 보기</button>
 </section>
@@ -397,7 +397,7 @@ html, body {max-width:100%; overflow-x:hidden}
  <div class="galleryPreviewCard">
   <div class="galleryPreviewHead"><div><div id="galleryPreviewCategory" class="galleryPreviewCat"></div><h2 id="galleryPreviewTitle">샘플 미리보기</h2></div><button type="button" id="galleryPreviewClose" aria-label="미리보기 닫기">×</button></div>
   <div class="galleryPreviewScreen"><img id="galleryPreviewImage" alt="움직이는 픽셀 샘플"></div>
-  <p class="galleryPreviewInfo">32 × 32 픽셀 · 8프레임 · 약 1초 루프 · LED 화면 맞춤</p>
+  <p class="galleryPreviewInfo">64 × 64 픽셀 원화 · 8프레임 · LED 크기에 맞춰 자동 축소</p>
   <div class="galleryPreviewActions"><button class="primary" id="galleryApply">편집기에 불러오기</button><button id="galleryDownload">GIF 파일 저장</button><button id="gallerySend">LED 기기로 전송</button></div>
  </div>
 </div>

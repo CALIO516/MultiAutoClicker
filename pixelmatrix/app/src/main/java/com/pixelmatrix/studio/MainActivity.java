@@ -36,6 +36,9 @@ import android.widget.Toast;
 import android.view.WindowManager;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
+import java.util.Calendar;
+import android.view.View;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -70,6 +73,10 @@ public class MainActivity extends Activity {
     private volatile boolean notifyReady = false;
     private volatile boolean cancelled = false;
     private volatile boolean sending = false;
+    private volatile int mtuSize = 23;
+    private final ArrayBlockingQueue<Integer> writeResults = new ArrayBlockingQueue<>(4);
+    private volatile boolean writeWithResponse = true;
+    private String lastDeviceName = "";
     private ValueCallback<Uri[]> fileChoose;
     private byte[] pendingFile;
     private String pendingMime;
@@ -79,12 +86,16 @@ public class MainActivity extends Activity {
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         getWindow().setStatusBarColor(Color.rgb(11,15,24));
         getWindow().setNavigationBarColor(Color.rgb(11,15,24));
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         BluetoothManager mgr=(BluetoothManager)getSystemService(BLUETOOTH_SERVICE);
         adapter=mgr==null?null:mgr.getAdapter();
         web=new WebView(this);
+        web.setFitsSystemWindows(true);
+        web.setOverScrollMode(View.OVER_SCROLL_NEVER);
         WebSettings settings=web.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -92,6 +103,8 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(true);
         settings.setDefaultTextEncodingName("UTF-8");
         settings.setSupportZoom(false);
+        settings.setBuiltInZoomControls(false);
+        settings.setDisplayZoomControls(false);
         web.setWebViewClient(new WebViewClient(){
             @Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if(url.startsWith("file:///android_asset/"))return false;
@@ -180,7 +193,7 @@ public class MainActivity extends Activity {
         scanCb=new ScanCallback(){
             @Override public void onScanResult(int type,ScanResult res){addDevice(res);}
             @Override public void onBatchScanResults(java.util.List<ScanResult> list){for(ScanResult r:list)addDevice(r);}
-            @Override public void onScanFailed(int error){status("BLE 검색 오류: "+error,false);stopScan();}
+            @Override public void onScanFailed(int error){status("BLE 검색 오류 "+error+" · 권한·블루투스 설정을 확인하세요.",false);stopScan();}
         };
         try{scanner.startScan(scanCb);scanning=true;status("주변 LED 검색 중…",false);deviceDialog.show();ui.postDelayed(()->{
             if(scanning){stopScan();status("검색 완료 · 기기를 선택하세요.",false);}
@@ -194,8 +207,8 @@ public class MainActivity extends Activity {
         String name;
         try{name=d.getName();}catch(SecurityException e){name=null;}
         if(name==null||name.isEmpty())name=result.getScanRecord()==null?null:result.getScanRecord().getDeviceName();
-        if(name==null||name.isEmpty())return;
-        final String display=name+"  ["+mac+"]";
+        if(name==null||name.isEmpty()) name="이름 없는 BLE 장치";
+        final String display=name+"  ["+mac+"]  · "+result.getRssi()+"dBm";
         found.put(mac,d);
         ui.post(()->{
             if(deviceList!=null){deviceList.add(display);deviceList.notifyDataSetChanged();}
@@ -209,14 +222,32 @@ public class MainActivity extends Activity {
     }
     private void connect(BluetoothDevice device){
         disconnect();
-        status("연결 중: "+device.getName(),false);
-        try{gatt=device.connectGatt(this,false,callback,BluetoothDevice.TRANSPORT_LE);}
-        catch(Exception e){status("연결 오류: "+e.getMessage(),false);}
+        cancelled=false; mtuSize=23;
+        String name;
+        try{name=device.getName();}catch(Exception e){name=null;}
+        lastDeviceName=(name==null||name.isEmpty())?"LED 기기":name;
+        status("연결 중: "+lastDeviceName+" · 약 10초 소요",false);
+        try{
+            gatt=device.connectGatt(this,false,callback,BluetoothDevice.TRANSPORT_LE);
+            ui.postDelayed(()->{
+                if(gatt!=null && !connected && gatt.getDevice().getAddress().equals(device.getAddress())){
+                    status("연결 지연 · 공식 앱 연결을 끄고 다시 검색하세요.",false);
+                }
+            },16000);
+        } catch(Exception e){status("연결 오류: "+e.getMessage(),false);}
+    }
+    private void reconnectLast(){
+        if(!allowed()){requestBle();return;}
+        if(adapter==null || !adapter.isEnabled()){status("먼저 블루투스를 켜주세요.",false);return;}
+        String address=getPreferences(MODE_PRIVATE).getString("last_ble_address","");
+        if(address.isEmpty()){scan();return;}
+        try{connect(adapter.getRemoteDevice(address));}catch(Exception e){status("최근 기기 연결 실패: "+e.getMessage(),false);scan();}
     }
     private void disconnect(){
         cancelled=true;
         stopScan();
-        connected=false;notifyReady=false;tx=null;
+        connected=false;notifyReady=false;tx=null;mtuSize=23;
+        acks.clear();writeResults.clear();
         BluetoothGatt previous=gatt;
         gatt=null;
         if(previous!=null){try{previous.disconnect();previous.close();}catch(Exception ignored){}}
@@ -227,7 +258,9 @@ public class MainActivity extends Activity {
             if(b!=gatt)return;
             if(st!=BluetoothGatt.GATT_SUCCESS||state==BluetoothProfile.STATE_DISCONNECTED){
                 connected=false;tx=null;notifyReady=false;
-                status("LED 연결 끊김 (상태 "+st+")",false);
+                status("LED 연결 끊김 (상태 "+st+") · 다시 검색하세요.",false);
+                try{b.close();}catch(Exception ignored){}
+                if(b==gatt)gatt=null;
                 return;
             }
             if(state==BluetoothProfile.STATE_CONNECTED){status("GATT 서비스 검색 중…",false);b.discoverServices();}
@@ -239,21 +272,40 @@ public class MainActivity extends Activity {
             if(s==null){status("FA00 서비스 없음: 지원하지 않는 기기입니다.",false);return;}
             tx=s.getCharacteristic(WRITE);
             if(tx==null){status("FA02 전송 채널 없음",false);return;}
+            int props=tx.getProperties();
+            writeWithResponse=(props & BluetoothGattCharacteristic.PROPERTY_WRITE)!=0;
+            notifyReady=false;
             BluetoothGattCharacteristic rx=s.getCharacteristic(NOTIFY);
             if(rx!=null){
                 try {
-                    b.setCharacteristicNotification(rx,true);
+                    boolean enabled=b.setCharacteristicNotification(rx,true);
                     BluetoothGattDescriptor desc=rx.getDescriptor(CCCD);
-                    if(desc!=null){
-                        if(Build.VERSION.SDK_INT>=33)b.writeDescriptor(desc,BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        else{desc.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);b.writeDescriptor(desc);}
-                        notifyReady=true;
-                    }
-                }catch(Exception ignored){}
-            }
-            try{b.requestMtu(247);}catch(Exception ignored){}
+                    if(enabled&&desc!=null){
+                        int code;
+                        if(Build.VERSION.SDK_INT>=33)code=b.writeDescriptor(desc,BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                        else{desc.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);code=b.writeDescriptor(desc)?0:1;}
+                        notifyReady=code==0;
+                        if(!notifyReady)try{b.requestMtu(247);}catch(Exception ignored){}
+                    }else{try{b.requestMtu(247);}catch(Exception ignored){}}
+                }catch(Exception ignored){try{b.requestMtu(247);}catch(Exception ignored2){}}
+            }else{try{b.requestMtu(247);}catch(Exception ignored){}}
             cancelled=false;connected=true;
-            status("연결됨 · "+b.getDevice().getName(),true);
+            try{getPreferences(MODE_PRIVATE).edit().putString("last_ble_address",b.getDevice().getAddress()).apply();}catch(Exception ignored){}
+            status("연결됨 · "+lastDeviceName,true);
+            log("BLE 연결 완료 · 전송 채널 FA02 확인. MTU 협상 중…");
+        }
+        @Override public void onDescriptorWrite(BluetoothGatt b,BluetoothGattDescriptor d,int result){
+            if(b!=gatt)return;
+            notifyReady=result==BluetoothGatt.GATT_SUCCESS;
+            try{b.requestMtu(247);}catch(Exception ignored){}
+        }
+        @Override public void onMtuChanged(BluetoothGatt b,int newMtu,int result){
+            if(b!=gatt)return;
+            if(result==BluetoothGatt.GATT_SUCCESS)mtuSize=Math.max(23,newMtu);
+            log("BLE 최대 전송 단위: "+Math.max(20,Math.min(244,mtuSize-3))+"바이트");
+        }
+        @Override public void onCharacteristicWrite(BluetoothGatt b,BluetoothGattCharacteristic c,int result){
+            if(b==gatt)writeResults.offer(result);
         }
         @Override public void onCharacteristicChanged(BluetoothGatt b,BluetoothGattCharacteristic c){recv(c.getValue());}
         @Override public void onCharacteristicChanged(BluetoothGatt b,BluetoothGattCharacteristic c,byte[] val){recv(val);}
@@ -268,15 +320,22 @@ public class MainActivity extends Activity {
         BluetoothGatt b=gatt;
         BluetoothGattCharacteristic c=tx;
         if(b==null||c==null||!connected||cancelled)throw new Exception("BLE 연결이 종료되었습니다.");
-        int type=BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE;
-        for(int retry=0;retry<4;retry++){
+        if(bytes.length>Math.max(20,Math.min(244,mtuSize-3)))throw new Exception("전송 바이트가 BLE MTU를 초과합니다: "+bytes.length);
+        int type=writeWithResponse?BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT:BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE;
+        for(int retry=0;retry<3;retry++){
+            writeResults.clear();
             boolean ok;
             if(Build.VERSION.SDK_INT>=33){ok=b.writeCharacteristic(c,bytes,type)==BluetoothGatt.GATT_SUCCESS;}
-            else {c.setWriteType(type);c.setValue(bytes);ok=b.writeCharacteristic(c);}
-            if(ok)return;
-            Thread.sleep(50L*(retry+1));
+            else{c.setWriteType(type);c.setValue(bytes);ok=b.writeCharacteristic(c);}
+            if(ok){
+                if(writeWithResponse){
+                    Integer result=writeResults.poll(2500,TimeUnit.MILLISECONDS);
+                    if(result!=null&&result==BluetoothGatt.GATT_SUCCESS)return;
+                }else{Thread.sleep(25);return;}
+            }
+            Thread.sleep(65L*(retry+1));
         }
-        throw new Exception("BLE 쓰기 요청 실패 (4회 재시도)");
+        throw new Exception("BLE 패킷 쓰기 실패 · 거리·연결 상태를 확인하세요.");
     }
     private void sendCommand(byte... packet){
         io.execute(()->{
@@ -302,14 +361,14 @@ public class MainActivity extends Activity {
                     byte[] packet=new byte[16+plen];
                     packet[0]=(byte)(packet.length&255);packet[1]=(byte)(packet.length>>8);
                     packet[2]=(byte)dataType;packet[3]=0;
-                    packet[4]=(byte)(blocks>1?2:0);
+                    packet[4]=(byte)(part==0?0:2);
                     put32(packet,5,payload.length);put32(packet,9,(int)sum);
                     packet[13]=5;packet[14]=0;packet[15]=(byte)index;
                     System.arraycopy(payload,off,packet,16,plen);
-                    for(int i=0;i<packet.length;i+=180){
-                        int len=Math.min(180,packet.length-i);
+                    int step=Math.max(20,Math.min(244,mtuSize-3));
+                    for(int i=0;i<packet.length;i+=step){
+                        int len=Math.min(step,packet.length-i);
                         sendRaw(Arrays.copyOfRange(packet,i,i+len));
-                        Thread.sleep(22);
                     }
                     log("전송 중: "+(part+1)+" / "+blocks+" 블록 ("+(int)((part+1)*100.0/blocks)+"%)");
                     if(notifyReady){
@@ -324,12 +383,14 @@ public class MainActivity extends Activity {
             finally{sending=false;}
         });
     }
+    private static int clamp(int n,int min,int max){return Math.max(min,Math.min(max,n));}
     private static void put32(byte[] arr,int index,int number){
         for(int i=0;i<4;i++)arr[index+i]=(byte)((number>>(i*8))&255);
     }
     public final class Bridge {
         @JavascriptInterface public void connect(){ui.post(()->requestBle());}
         @JavascriptInterface public void disconnect(){ui.post(()->MainActivity.this.disconnect());}
+        @JavascriptInterface public void reconnect(){ui.post(()->reconnectLast());}
         @JavascriptInterface public boolean isConnected(){return connected;}
         @JavascriptInterface public void rgb(String b64,int dimension){
             if(!connected){log("먼저 LED 기기에 연결하세요.");return;}
@@ -359,6 +420,49 @@ public class MainActivity extends Activity {
             else if("brightness".equals(command))sendCommand((byte)5,(byte)0,(byte)4,(byte)0x80,(byte)Math.min(100,Math.max(0,value)));
             else if("color".equals(command))sendCommand((byte)7,(byte)0,(byte)2,(byte)2,(byte)(value>>16),(byte)(value>>8),(byte)value);
             else if("diy".equals(command))sendCommand((byte)5,(byte)0,(byte)4,(byte)1,(byte)(value>0?1:0));
+        }
+        @JavascriptInterface public void deviceCommand(String command,String jsonValues){
+            if(!connected){log("먼저 LED 기기에 연결하세요.");return;}
+            try{
+                JSONArray arg=new JSONArray(jsonValues);
+                byte[] packet;
+                switch(command){
+                    case "syncTime":{
+                        Calendar c=Calendar.getInstance();
+                        int dow=(c.get(Calendar.DAY_OF_WEEK)+5)%7+1;
+                        packet=new byte[]{11,0,1,(byte)0x80,(byte)(c.get(Calendar.YEAR)-2000),(byte)(c.get(Calendar.MONTH)+1),(byte)c.get(Calendar.DAY_OF_MONTH),(byte)dow,(byte)c.get(Calendar.HOUR_OF_DAY),(byte)c.get(Calendar.MINUTE),(byte)c.get(Calendar.SECOND)};
+                        break;
+                    }
+                    case "clock":{
+                        int style=clamp(arg.optInt(0),0,7),date=arg.optInt(1),hour24=arg.optInt(2),rgb=arg.optInt(3,0xffffff);
+                        int flags=style|(date>0?0x80:0)|(hour24>0?0x40:0);
+                        packet=new byte[]{8,0,6,1,(byte)flags,(byte)(rgb>>16),(byte)(rgb>>8),(byte)rgb};
+                        break;
+                    }
+                    case "effect":{
+                        int style=clamp(arg.optInt(0),0,6),speed=clamp(arg.optInt(1),0,100),rgb=arg.optInt(2,0x55ddcc);
+                        // 2-color built-in animation (effect CMD 3 / SUB 2).
+                        packet=new byte[]{13,0,3,2,(byte)style,(byte)speed,2,(byte)(rgb>>16),(byte)(rgb>>8),(byte)rgb,(byte)0x20,(byte)0x40,(byte)0x60};
+                        break;
+                    }
+                    case "flip":packet=new byte[]{5,0,6,(byte)0x80,(byte)(arg.optInt(0)>0?1:0)};break;
+                    case "countdown":packet=new byte[]{7,0,8,(byte)0x80,(byte)clamp(arg.optInt(0),0,3),(byte)clamp(arg.optInt(1),0,255),(byte)clamp(arg.optInt(2),0,59)};break;
+                    case "stopwatch":packet=new byte[]{5,0,9,(byte)0x80,(byte)clamp(arg.optInt(0),0,3)};break;
+                    case "score":{
+                        int a=clamp(arg.optInt(0),0,9999),b=clamp(arg.optInt(1),0,9999);
+                        packet=new byte[]{8,0,10,(byte)0x80,(byte)a,(byte)(a>>8),(byte)b,(byte)(b>>8)};
+                        break;
+                    }
+                    case "eco":{
+                        int enabled=arg.optInt(0)>0?1:0,start=clamp(arg.optInt(1),0,23),end=clamp(arg.optInt(2),0,23),brightness=clamp(arg.optInt(3),1,100);
+                        packet=new byte[]{10,0,2,(byte)0x80,(byte)enabled,(byte)start,0,(byte)end,0,(byte)brightness};
+                        break;
+                    }
+                    default:throw new Exception("알 수 없는 기기 명령: "+command);
+                }
+                sendCommand(packet);
+                log("기기 제어 요청: "+command+" (표시 결과 확인)");
+            }catch(Exception e){log("기기 명령 오류: "+e.getMessage());}
         }
         @JavascriptInterface public void save(String name,String mime,String base64){
             try{

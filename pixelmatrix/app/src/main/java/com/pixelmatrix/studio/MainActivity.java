@@ -88,8 +88,8 @@ public class MainActivity extends Activity {
         super.onCreate(state);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        getWindow().setStatusBarColor(Color.rgb(11,15,24));
-        getWindow().setNavigationBarColor(Color.rgb(11,15,24));
+        getWindow().setStatusBarColor(Color.rgb(9,11,16));
+        getWindow().setNavigationBarColor(Color.rgb(9,11,16));
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         BluetoothManager mgr=(BluetoothManager)getSystemService(BLUETOOTH_SERVICE);
         adapter=mgr==null?null:mgr.getAdapter();

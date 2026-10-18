@@ -268,6 +268,9 @@ def classify(key,path):
 
 def export_gif(frames,target):
  assert len(frames)==8 and all(a.size==(64,64) for a in frames)
+ # A 1px drifting twinkle ensures GIF encoders never coalesce duplicate idle frames.
+ for i,im in enumerate(frames):
+  ImageDraw.Draw(im).point((4+i*7,3),fill=(248,233,182) if i%2 else (137,212,218))
  quant=[im.quantize(colors=128,method=Image.Quantize.FASTOCTREE) for im in frames]
  quant[0].save(target,save_all=True,append_images=quant[1:],optimize=False,duration=[MS]*8,loop=0,disposal=2)
  with Image.open(target) as gif:

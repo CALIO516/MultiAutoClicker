@@ -1,6 +1,8 @@
 # PixelMatrix Studio v1.1 — Android 독립 앱
 
-설치 앱 `com.pixelmatrix.studio` · Android 8.0 이상 · 인터넷 불필요.
+별도 설치 앱 `com.pixelmatrix.studio.v11` · Android 8.0 이상 · 인터넷 불필요.
+
+기존 v1.0과 서명키가 달라 덮어쓸 수 없으므로 v1.1은 별도 설치됩니다. 기존 v1.0에서 **프로젝트 저장** 후 v1.1에서 **프로젝트 불러오기**로 데이터를 옮길 수 있습니다.
 
 ## 바뀐 기능
 - 화면 상단 상태바 및 하단 시스템 탐색바를 침범하지 않도록 Android UI 처리 수정.

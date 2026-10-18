@@ -4,7 +4,7 @@ android {
     namespace 'com.pixelmatrix.studio'
     compileSdk 35
     defaultConfig {
-        applicationId 'com.pixelmatrix.studio'
+        applicationId 'com.pixelmatrix.studio.v11'
         minSdk 26
         targetSdk 34
         versionCode 4

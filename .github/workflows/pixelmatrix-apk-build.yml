@@ -27,21 +27,26 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Prepare persistent signing directory
-        run: mkdir -p "$HOME/.android"
-      - name: Restore stable debug signing key for updates
+      - name: Restore stable signing key for future upgrades
         id: signing-cache
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: pixelmatrix-v27-stable-signing-v1
-      - name: Enforce signing continuity on future versions
+          path: ${{ github.workspace }}/pixelmatrix/app/signing/debug.keystore
+          key: pixelmatrix-v27-stable-key-v2
+      - name: Generate one-time or restore stable signing key
         run: |
+          mkdir -p app/signing
           VERSION_CODE=$(grep -Eo 'versionCode [0-9]+' app/build.gradle | cut -d' ' -f2)
-          if [ "$VERSION_CODE" -gt 27 ] && [ "${{ steps.signing-cache.outputs.cache-hit }}" != 'true' ]; then
-            echo 'ERROR: Stable signing keystore not restored; refusing build that could break updates.'
-            exit 1
+          if [ ! -f app/signing/debug.keystore ]; then
+            if [ "$VERSION_CODE" -gt 27 ]; then
+              echo 'ERROR: Existing signing key missing. Refusing to change certificate for an upgrade.'
+              exit 1
+            fi
+            keytool -genkeypair -noprompt -keystore app/signing/debug.keystore \
+              -storepass android -keypass android -alias pixelmatrix -keyalg RSA -keysize 3072 \
+              -validity 10000 -dname 'CN=PixelMatrix Stable Debug, O=PixelMatrix, C=KR'
           fi
+          test -f app/signing/debug.keystore
       - name: Unpack 200 curated animated GIF assets
         run: |
           mkdir -p app/src/main/assets/gallery/v22

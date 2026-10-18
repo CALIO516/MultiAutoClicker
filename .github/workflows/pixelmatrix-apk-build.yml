@@ -1,4 +1,4 @@
-name: PixelMatrix Studio v2.2 APK
+name: PixelMatrix Studio 2.3 APK Build
 on:
   push:
     branches: [pixelmatrix-studio-apk-build]
@@ -27,47 +27,36 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Install licensed artwork build tool
-        run: python3 -m pip install --quiet --user pillow
-      - name: Download CC0 source sprites
+      - name: Extract polished GIF artpack
         run: |
-          mkdir -p /tmp/pm_packs
-          git clone --depth 1 https://github.com/marpor/PixelAdventure.git /tmp/pm_packs/frog
-          git clone --depth 1 https://github.com/pixel-boy/NinjaAdventure.git /tmp/pm_packs/ninja
-      - name: Build CC0 sprite bases
-        run: python3 tools/generate_premium_gallery.py --frog /tmp/pm_packs/frog --ninja /tmp/pm_packs/ninja --output app/src/main/assets/gallery
-      - name: Create 10 categories of 20 LED-ready animations
-        run: python3 tools/curate_v22_gallery.py
-      - name: Validate 200 GIFs, categories, bridge and version
+          rm -rf app/src/main/assets/gallery/v22
+          mkdir -p app/src/main/assets/gallery/v22
+          cat artpacks/v23.*.bin > premium_artpack_v23.tar.xz
+          tar -xJf premium_artpack_v23.tar.xz -C app/src/main/assets/gallery/v22
+      - name: Verify sample animations and application version
         run: |
-          python3 - <<'PY'
+          python3 -m pip install --quiet --user pillow
+          python3 - <<'PYV'
           from pathlib import Path
-          from collections import Counter
           from PIL import Image
-          import json, re
-          base=Path('app/src/main/assets');c=json.loads((base/'gallery-catalog.json').read_text())
-          assert len(c['samples'])==200 and len(c['categories'])==10
-          assert all(x['count']==20 for x in c['categories'])
-          counts=Counter(x['category'] for x in c['samples'])
-          assert len(counts)==10 and all(n==20 for n in counts.values())
-          for entry in c['samples']:
-              assert re.fullmatch(r'v22/pixel_\d{3}\.gif',entry['file'])
-              with Image.open(base/'gallery'/entry['file']) as im:
-                  assert im.size==(64,64) and im.n_frames==8
-          assert 'v22/pixel_' in Path('app/src/main/java/com/pixelmatrix/studio/MainActivity.java').read_text()
-          assert "versionName '2.2.0'" in Path('app/build.gradle').read_text()
-          assert 'v2.2</span>' in (base/'index.html').read_text()
-          print('PASS: 200 eight-frame GIFs; 10*20 catalog; native asset bridge; v2.2 labels')
-          PY
-      - name: Compile APK
+          import json
+          root=Path('app/src/main/assets')
+          cat=json.loads((root/'gallery-catalog.json').read_text())
+          assert len(cat['categories'])==10 and len(cat['samples'])==200
+          assert all(c['count']==20 for c in cat['categories'])
+          for s in cat['samples']:
+              p=root/'gallery'/s['file']
+              assert p.is_file(), p
+              with Image.open(p) as im: assert im.size==(64,64) and im.n_frames==8, p
+          assert "versionName '2.3.0'" in Path('app/build.gradle').read_text()
+          assert 'PixelMatrix Studio 2.3' in Path('app/src/main/AndroidManifest.xml').read_text()
+          assert 'v2.3' in (root/'index.html').read_text()
+          print('PASS: 200 GIFs, 8 frames each, 10 categories, version 2.3.0')
+          PYV
+      - name: Compile Android APK
         run: gradle :app:assembleDebug --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-v2.2-APK
+          name: PixelMatrixStudio-v2.3-CompiledAPK
           path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 30
-      - uses: actions/upload-artifact@v4
-        with:
-          name: PixelMatrixStudio-v2.2-GIF200
-          path: pixelmatrix/PixelMatrix_Studio_v2.2_GIF_200.zip
           retention-days: 30

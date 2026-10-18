@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=auto"><meta name="theme-color" content="#090b10">
-<title>PixelMatrix Studio 1.2 — LED 픽셀 스튜디오</title>
+<title>PixelMatrix Studio 1.3 — LED 픽셀 스튜디오</title>
 <style>
 :root{--bg:#0a0c13;--pane:#141824;--pane2:#1a2030;--line:#293247;--text:#eff2fb;--sub:#9aa8c1;--accent:#79e0c7;--gold:#ffd28f;--rad:17px;--shadow:0 18px 50px #0004;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 5%,#18263c 0,transparent 33%),radial-gradient(ellipse at 90% 0,#271d36 0,transparent 30%),var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,'Noto Sans KR',sans-serif;min-height:100vh}
@@ -196,11 +196,115 @@ input[type=range]{accent-color:#9299fc}input[type=checkbox]{accent-color:#9299fc
 @media(max-width:370px){.brand p{display:none}.zoomControls{gap:3px}.zoomControls button{min-width:32px;padding:4px 5px}.canvasViewport{width:min(100%, 88vw)}.top .logo{width:31px;height:31px}.brand h1{font-size:15px}}
 @media(prefers-reduced-motion:reduce){button,.toast{transition:none!important}}
 
+
+/* v1.3 — responsive geometry audit: consistent tap regions and spacing. */
+html, body {max-width:100%; overflow-x:hidden}
+.page {min-width:0}
+.topBtns button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;text-align:center}
+.topActionIcon{font-size:15px;line-height:1;font-weight:700}
+.topBtns button span:last-child{line-height:1.25}
+.card h2{margin-top:0;margin-bottom:12px;line-height:1.45}
+.card .frameHead h2{margin:0}
+.frameHead{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;margin-bottom:12px}
+.frameHead>.flexWrap{justify-content:flex-end;flex-wrap:nowrap;gap:7px}
+.frameHead>.flexWrap label{white-space:nowrap;font-size:12px}
+.frameList{display:flex;align-items:flex-start;gap:9px;min-height:100px;padding:3px 2px 9px}
+.frameItem{flex:0 0 85px;width:85px;min-height:97px;display:flex;align-items:center;flex-direction:column;gap:4px;justify-content:flex-start;padding:7px 6px}
+.frameItem canvas{height:64px;width:64px;flex:0 0 64px;max-width:100%}
+.frameItem small{font-size:11px;line-height:1.3;word-break:keep-all;white-space:nowrap}
+.frames>.flexWrap{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;align-items:stretch}
+.frames>.flexWrap button{font-size:12px;padding:8px 4px;min-width:0}
+.frames .note{margin-top:13px;line-height:1.65}
+.deviceGroup,.gifImporter{margin-top:0}
+.deviceGroup h3{margin-top:0;margin-bottom:14px}
+.deviceTitle{margin-bottom:13px}
+.deviceConnectRow{margin-top:0}
+.legacySamples{margin:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0}
+.legacySamples summary{cursor:pointer;padding:7px 0;font-size:12px;color:var(--sub)}
+.legacySamples[open] summary{margin-bottom:12px}
+.rightHeader{font-size:15px!important;margin-bottom:14px!important}
+.galleryPanel{min-width:0;margin:0 0 18px}
+.galleryIntro{display:flex;flex-direction:column;gap:3px;margin-bottom:13px}
+.galleryIntro strong{font-size:15px;line-height:1.5}
+.galleryIntro p{color:var(--sub);font-size:12px;margin:0;line-height:1.55}
+.gallerySearchLabel{display:block;color:var(--sub);font-size:11px;margin-bottom:5px}
+#gallerySearch{width:100%;min-width:0;min-height:42px;padding:9px 12px;border-radius:10px}
+.galleryCategories{display:flex;gap:7px;overflow-x:auto;padding:12px 1px;scrollbar-width:thin;scrollbar-color:#444b67 transparent;overscroll-behavior-x:contain}
+.galleryCategories button{flex:0 0 auto;min-height:36px;font-size:11px;white-space:nowrap;padding:6px 11px;border-radius:9px}
+.galleryCategories button.on{background:#313754;border-color:var(--accent);color:#eff0ff}
+.galleryInfo{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:1px 1px 10px;color:var(--sub);font-size:11px}
+.galleryInfo #galleryCount{color:#e8ebff;font-weight:700}
+.galleryGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;align-items:stretch}
+.galleryItem{min-width:0;border:1px solid #30384c;background:#0d121d;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:9px 5px;border-radius:11px;cursor:pointer;min-height:118px}
+.galleryItem:hover,.galleryItem:focus-visible{background:#202743;border-color:#959cff}
+.galleryItem img{width:100%;max-width:96px;height:auto;aspect-ratio:1;object-fit:contain;background:#090e17;border-radius:7px;image-rendering:pixelated;pointer-events:none}
+.galleryItem .galleryName{font-size:11px;font-weight:650;line-height:1.3;color:#e2e8f4;white-space:normal;word-break:keep-all}
+.galleryItem .galleryCategory{font-size:9px;color:#93a0b6;line-height:1.25}
+.galleryMore{display:block;width:100%;margin:12px auto 0;font-size:12px}
+.galleryMore[hidden]{display:none}
+.galleryPreviewOverlay{display:none;position:fixed;inset:0;background:#05060ad9;z-index:200;overflow-y:auto;align-items:center;justify-content:center;padding:16px}
+.galleryPreviewOverlay.visible{display:flex}
+.galleryPreviewCard{background:#171b26;border:1px solid #434a61;border-radius:15px;padding:17px;width:min(420px,100%);box-shadow:0 18px 50px #0009}
+.galleryPreviewHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:15px}
+.galleryPreviewHead h2{font-size:18px;color:var(--text);margin:3px 0 0}
+.galleryPreviewCat{font-size:11px;color:#a9b2f4}
+#galleryPreviewClose{font-size:24px;width:38px;min-width:38px;padding:0;line-height:1}
+.galleryPreviewScreen{display:flex;justify-content:center;align-items:center;background:#06090e;border:1px solid #394056;border-radius:12px;padding:15px}
+.galleryPreviewScreen img{width:min(100%,260px);height:auto;aspect-ratio:1;image-rendering:pixelated}
+.galleryPreviewInfo{font-size:11px;color:var(--sub);line-height:1.5;margin:12px 0}
+.galleryPreviewActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.galleryPreviewActions button{font-size:12px;padding:10px 5px;line-height:1.3}
+#galleryApply{grid-column:1/-1}
+.gifImporter h2{font-size:14px;margin:0 0 12px}
+@media(max-width:700px){
+ .page{padding:10px 10px calc(80px + env(safe-area-inset-bottom,0px))}
+ .top{margin-bottom:12px;gap:10px}
+ .brand{min-height:44px}
+ .brand h1{font-size:16px;line-height:1.25;white-space:nowrap}
+ .brand h1 .brandSub{display:inline;font-size:10px!important;white-space:nowrap}
+ .brand p{display:none}
+ #topConnectBtn{min-height:38px;font-size:11px;padding:5px 9px}
+ .topBtns{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;overflow:visible;margin:0;padding:0}
+ .topBtns button{flex:none!important;width:100%;min-width:0;max-width:100%;min-height:60px;padding:7px 2px;font-size:10px;white-space:normal;overflow-wrap:normal;word-break:keep-all;border-radius:10px}
+ .topBtns button span:last-child{display:block;font-size:10px;font-weight:650;line-height:1.22}
+ .topBtns .topActionIcon{font-size:16px;line-height:17px}
+ .work{gap:12px}
+ .card{padding:13px 12px;border-radius:13px}
+ .card h2{margin-bottom:12px}
+ .sceneWrap{min-width:0;width:100%}
+ .frames{padding:13px 12px;margin-top:11px}
+ .frameHead{grid-template-columns:1fr;gap:10px;margin-bottom:13px}
+ .frameHead h2{font-size:14px!important;line-height:1.4}
+ .frameHead>.flexWrap{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;justify-content:stretch}
+ .frameHead select{max-width:none!important;width:100%;min-width:0;min-height:43px;font-size:12px}
+ .frameHead>.flexWrap button{min-width:76px;min-height:43px}
+ .frameList{gap:10px;min-height:103px}
+ .frameItem{width:90px;flex-basis:90px;min-height:104px;gap:4px}
+ .frameItem canvas{width:66px;height:66px;flex-basis:66px}
+ .frames>.flexWrap{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+ .frames>.flexWrap button{min-height:42px;font-size:11px;white-space:normal;word-break:keep-all;padding:6px 4px}
+ .frames .note{font-size:11px;margin-top:12px}
+ .deviceTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+ .deviceTitle h2{margin:0!important}
+ .deviceConnectRow{grid-template-columns:minmax(0,1fr) minmax(92px,auto)}
+ .deviceConnectRow button{font-size:12px;padding:8px 5px;white-space:normal;word-break:keep-all}
+ .galleryGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .galleryItem{padding:7px 3px;min-height:105px}
+ .galleryItem img{max-width:86px}
+ .galleryItem .galleryName{font-size:10px}
+ .galleryPreviewOverlay{padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+ .galleryPreviewScreen img{width:min(100%,218px)}
+ .galleryCategories{margin-right:-12px;padding-right:12px}
+ .right{padding:13px 12px}
+ .sceneWrap.isHiddenMobile{display:none!important}
+}
+@media(max-width:360px){.topBtns button{font-size:9px;min-height:58px}.topBtns button span:last-child{font-size:9px}.galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
 <div class="page">
-<header class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="12" y="3" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="3" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="12" y="12" width="6" height="6" rx="1" fill="#102b32"/><rect x="21" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="3" y="21" width="6" height="6" rx="1" fill="#102b32"/><rect x="12" y="21" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="21" width="6" height="6" rx="1" fill="#102b32"/></svg></div><div><h1>PIXELMATRIX <span class="brandSub">Studio</span></h1><p>픽셀 아트 · GIF · LED 디스플레이</p></div><div class="quickConnect"><button id="topConnectBtn">⌁ 기기 연결</button></div></div><div class="topBtns"><button id="newBtn">＋ 새 작업</button><button id="gifTopBtn">🎞 GIF 변환</button><button id="openBtn">프로젝트 불러오기</button><button id="projectSaveBtn" class="primary">프로젝트 저장</button></div></header>
+<header class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="12" y="3" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="3" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="12" y="12" width="6" height="6" rx="1" fill="#102b32"/><rect x="21" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="3" y="21" width="6" height="6" rx="1" fill="#102b32"/><rect x="12" y="21" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="21" width="6" height="6" rx="1" fill="#102b32"/></svg></div><div><h1>PIXELMATRIX <span class="brandSub">Studio</span></h1><p>픽셀 아트 · GIF · LED 디스플레이</p></div><div class="quickConnect"><button id="topConnectBtn">⌁ 기기 연결</button></div></div><div class="topBtns"><button id="newBtn"><span class="topActionIcon">＋</span><span>새 작업</span></button><button id="gifTopBtn"><span class="topActionIcon">▦</span><span>GIF 변환</span></button><button id="openBtn"><span class="topActionIcon">↥</span><span>프로젝트<br>불러오기</span></button><button id="projectSaveBtn" class="primary"><span class="topActionIcon">✓</span><span>프로젝트<br>저장</span></button></div></header>
 <nav class="mobileNav" aria-label="작업 메뉴"><button data-goto="scene" class="on" aria-label="픽셀 편집"><span class="navGlyph" aria-hidden="true">▦</span><span>편집</span></button><button data-goto="left" aria-label="그리기 도구"><span class="navGlyph" aria-hidden="true">✎</span><span>도구</span></button><button data-goto="right" aria-label="GIF와 샘플"><span class="navGlyph" aria-hidden="true">▣</span><span>GIF</span></button><button data-goto="device" aria-label="LED 기기"><span class="navGlyph" aria-hidden="true">⌁</span><span>기기</span></button></nav>
 <div class="work"><aside class="card left" id="left"><h2>도구 상자 <span class="badgeNum" id="sizeTag">32×32</span></h2><div class="toolbar" id="tools"><button class="tool on" data-tool="pen" title="그리기">✎<span>펜</span></button><button class="tool" data-tool="erase" title="지우개">⌫<span>지우기</span></button><button class="tool" data-tool="fill" title="영역 채우기">▨<span>채우기</span></button><button class="tool" data-tool="pick" title="색상 선택">◉<span>스포이트</span></button><button class="tool" data-tool="line" title="선">╱<span>직선</span></button><button class="tool" data-tool="rect" title="사각형">▢<span>사각형</span></button><button class="tool" data-tool="ellipse" title="원">◯<span>원</span></button><button class="tool" data-tool="spark" title="무작위 반짝임">✦<span>반짝임</span></button></div>
 <div class="field"><label for="color">현재 색상</label><div class="cflex"><input type="color" id="color" value="#ffcf94" aria-label="현재 색상"><input id="hexColor" class="fill" value="#FFCF94" maxlength="7" aria-label="16진수 색상"><button id="defaultPaletteBtn" title="팔레트 전환">⇄</button></div><div class="swatches" id="swatches"></div></div>
@@ -246,8 +350,18 @@ input[type=range]{accent-color:#9299fc}input[type=checkbox]{accent-color:#9299fc
 <p id="deviceHelp">제어 명령은 일부 16×16/32×32/64×64 제품에서 지원합니다. 기기에 따라 기능이 다를 수 있습니다. 실제 장치에서 동작을 확인해주세요.</p>
 </aside>
 <aside class="card right" id="right">
-<h2>GIF → LED 픽셀 변환 <span class="badgeNum">NEW</span></h2>
-<div class="gifImporter">
+<h2 class="rightHeader">GIF · 8비트 애니메이션 라이브러리</h2>
+<section class="galleryPanel" aria-label="100종 움직이는 샘플">
+ <div class="galleryIntro"><strong>움직이는 픽셀 도트 <span class="badgeNum">100종</span></strong><p>고전 게임과 실용적인 LED 안내 이미지 · 모두 오프라인 제공</p></div>
+ <label class="gallerySearchLabel" for="gallerySearch">샘플 검색</label>
+ <input id="gallerySearch" type="search" placeholder="예: 카페, 공사, OPEN, 로딩" autocomplete="off">
+ <div class="galleryCategories" id="galleryCategories" aria-label="샘플 분류"></div>
+ <div class="galleryInfo"><span id="galleryCount">100종</span><span>32 × 32 · 움직이는 GIF</span></div>
+ <div id="galleryGrid" class="galleryGrid"></div>
+ <button type="button" id="galleryMore" class="galleryMore" hidden>샘플 더 보기</button>
+</section>
+<section class="gifImporter" id="gifImporter">
+<h2>내 GIF를 LED용으로 변환</h2>
 <button id="gifImportBtn" class="primary">↑ 움직이는 GIF 불러오기</button>
 <div class="gifSettings">
 <label>출력 해상도<select id="gifTarget"><option value="16">16 × 16</option><option value="32" selected>32 × 32</option><option value="64">64 × 64</option></select></label>
@@ -263,7 +377,15 @@ input[type=range]{accent-color:#9299fc}input[type=checkbox]{accent-color:#9299fc
 <div class="gifStatus" id="gifStatus" role="status" aria-live="polite">일반 GIF 파일을 선택하면 애니메이션 전체가 LED 해상도로 변환됩니다.</div>
 <p class="note" style="margin:8px 0 0">모든 과정은 기기 안에서 오프라인 처리합니다. 원본 프레임 수가 많으면 선택한 최대 개수로 균등하게 압축됩니다. 파일을 캔버스에 끌어다 놓아도 됩니다.</p>
 </div>
-<hr class="divider"><h2>완성형 픽셀 샘플</h2><p class="rightDesc">샘플을 터치하면 현재 프레임에 적용합니다. 교체 전에 자동으로 취소 이력을 남깁니다.</p><div class="presetTabs"><button class="on" data-tab="still">픽셀 아트</button><button data-tab="motion">움직이는 샘플</button></div><div class="sampleGrid" id="sampleGrid"></div><hr class="divider"><h2>사진 → 픽셀 아트</h2><input id="imgFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" class="visuallyHidden"><button id="imageBtn" style="width:100%">⬆ 사진·이미지 가져오기</button><div class="field"><label for="fitMode">화면 채우기 방식</label><select id="fitMode" style="width:100%"><option value="contain">전체 이미지 맞춤</option><option value="cover">화면 가득 채우기</option></select></div><p class="note">사진을 픽셀 해상도로 축소합니다. 일반 GIF는 자동으로 위의 애니메이션 변환 기능으로 열립니다.</p><hr class="divider"><h2>파일 내보내기</h2><div class="actions"><button id="pngBigBtn">PNG 8배 확대</button><button id="pngRawBtn">원본 PNG</button><button id="saveGifBtn">움직이는 GIF</button><button id="saveJsonBtn">작업 프로젝트</button></div><div class="tip"><strong>오프라인 사용</strong><div style="margin-top:3px">이 HTML 파일만 있으면 인터넷 없이 편집과 PNG/GIF 저장이 가능합니다. 작업 내용은 브라우저에 자동 저장을 시도하지만, 파일을 옮기거나 브라우저 데이터를 지우면 사라질 수 있으므로 프로젝트 파일도 함께 보관하세요.</div></div><div class="tip"><strong>원본 앱으로 보내기</strong><div style="margin-top:3px">PNG 또는 GIF로 저장한 후 공식 iDotMatrix 앱의 DIY·이미지 가져오기에서 불러오면 됩니다. 블루투스 실험 기능이 실패해도 이 방법으로 사용할 수 있습니다.</div></div><p style="font-size:11px;color:#6e809c;margin:15px 0 0">Pixel Lab — 비공식 독립 편집기 · iDotMatrix와 무관</p></aside></div>
+<details class="legacySamples"><summary>기존 기본 샘플 보기 (24종)</summary><h2>기본 픽셀 샘플</h2><p class="rightDesc">샘플을 터치하면 현재 프레임에 적용합니다. 교체 전에 자동으로 취소 이력을 남깁니다.</p><div class="presetTabs"><button class="on" data-tab="still">픽셀 아트</button><button data-tab="motion">움직이는 샘플</button></div><div class="sampleGrid" id="sampleGrid"></div></details><hr class="divider"><h2>사진 → 픽셀 아트</h2><input id="imgFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" class="visuallyHidden"><button id="imageBtn" style="width:100%">⬆ 사진·이미지 가져오기</button><div class="field"><label for="fitMode">화면 채우기 방식</label><select id="fitMode" style="width:100%"><option value="contain">전체 이미지 맞춤</option><option value="cover">화면 가득 채우기</option></select></div><p class="note">사진을 픽셀 해상도로 축소합니다. 일반 GIF는 자동으로 위의 애니메이션 변환 기능으로 열립니다.</p><hr class="divider"><h2>파일 내보내기</h2><div class="actions"><button id="pngBigBtn">PNG 8배 확대</button><button id="pngRawBtn">원본 PNG</button><button id="saveGifBtn">움직이는 GIF</button><button id="saveJsonBtn">작업 프로젝트</button></div><div class="tip"><strong>오프라인 사용</strong><div style="margin-top:3px">이 HTML 파일만 있으면 인터넷 없이 편집과 PNG/GIF 저장이 가능합니다. 작업 내용은 브라우저에 자동 저장을 시도하지만, 파일을 옮기거나 브라우저 데이터를 지우면 사라질 수 있으므로 프로젝트 파일도 함께 보관하세요.</div></div><div class="tip"><strong>원본 앱으로 보내기</strong><div style="margin-top:3px">PNG 또는 GIF로 저장한 후 공식 iDotMatrix 앱의 DIY·이미지 가져오기에서 불러오면 됩니다. 블루투스 실험 기능이 실패해도 이 방법으로 사용할 수 있습니다.</div></div><p style="font-size:11px;color:#6e809c;margin:15px 0 0">Pixel Lab — 비공식 독립 편집기 · iDotMatrix와 무관</p></aside></div>
+</div>
+<div id="galleryPreviewOverlay" class="galleryPreviewOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="애니메이션 샘플 미리보기">
+ <div class="galleryPreviewCard">
+  <div class="galleryPreviewHead"><div><div id="galleryPreviewCategory" class="galleryPreviewCat"></div><h2 id="galleryPreviewTitle">샘플 미리보기</h2></div><button type="button" id="galleryPreviewClose" aria-label="미리보기 닫기">×</button></div>
+  <div class="galleryPreviewScreen"><img id="galleryPreviewImage" alt="움직이는 픽셀 샘플"></div>
+  <p class="galleryPreviewInfo">32 × 32 픽셀 · 8 FPS · 무한 반복 · LED 최적화</p>
+  <div class="galleryPreviewActions"><button class="primary" id="galleryApply">편집기에 불러오기</button><button id="galleryDownload">GIF 파일 저장</button><button id="gallerySend">LED 기기로 전송</button></div>
+ </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="modalOverlay" id="modal"><div class="modal"><h3 id="modalTitle" style="margin:0;font-size:18px"></h3><p id="modalText"></p><div class="modalActions"><button id="modalCancel">취소</button><button class="primary" id="modalOk">진행</button></div></div></div>
@@ -444,10 +566,10 @@ async function importGIF(file){
   const options={target:+$('gifTarget').value,fit:$('gifFit').value,colors:+$('gifColors').value,smooth:$('gifResample').value==='smooth',speed:+$('gifSpeed').value,limit:+$('gifLimit').value,brightness:+$('gifBrightness').value/100,dark:+$('gifDark').value,dither:$('gifDither').checked};
   const originalSec=parsed.frames.reduce((sum,f)=>sum+f.delay,0)/1000;
   const converted=await convertGIFFrames(parsed,options,(done,total)=>{progress=`${done} / ${total}`;status.textContent=`변환 중… ${progress} 프레임`});
-  if(s.frames.some(f=>f.some(c=>c!==null))||s.frames.length>1){if(!await confirmModal('GIF 애니메이션으로 교체',`현재 작업을 ${converted.result.length}프레임 GIF 변환 결과로 바꿉니다. 이전 작업은 실행 취소로 복구할 수 있습니다.`)){status.textContent='가져오기가 취소되었습니다.';return}}
+  if(s.frames.some(f=>f.some(c=>c!==null))||s.frames.length>1){if(!await confirmModal('GIF 애니메이션으로 교체',`현재 작업을 ${converted.result.length}프레임 GIF 변환 결과로 바꿉니다. 이전 작업은 실행 취소로 복구할 수 있습니다.`)){status.textContent='가져오기가 취소되었습니다.';return false}}
   stop();checkpoint();s.size=options.target;s.frames=converted.result;s.delays=converted.delays;s.fps=0;s.current=0;s.name=file.name.replace(/\.gif$/i,'').slice(0,70)||'GIF 픽셀 변환';syncUI();persist();
   status.textContent=`✓ ${parsed.width}×${parsed.height} GIF · ${count}장 → ${s.frames.length}장 / ${s.size}×${s.size}\n원본 ${originalSec.toFixed(1)}초 · 변환 약 ${(s.delays.reduce((a,b)=>a+b,0)/1000).toFixed(1)}초 · ${options.colors}색`;
-  toast(`움직이는 GIF 변환 완료 · ${s.frames.length}프레임`);
+  toast(`움직이는 GIF 변환 완료 · ${s.frames.length}프레임`);return true;
  }catch(e){status.textContent='변환 실패: '+(e.message||String(e));toast('GIF 변환 실패: '+e.message)}finally{button.disabled=false;status.classList.remove('busy')}
 }
 
@@ -490,7 +612,7 @@ function wire(){initPointer();$$('[data-tool]').forEach(b=>b.onclick=()=>setTool
 $('gridBtn').onclick=()=>{showGrid=!showGrid;$('gridBtn').classList.toggle('on',showGrid);$('gridBtn').textContent=`# 격자 ${showGrid?'ON':'OFF'}`;render()};$('ledBtn').onclick=()=>{showLed=!showLed;$('ledBtn').classList.toggle('on',showLed);render()};$('flipHBtn').onclick=()=>alter('H');$('flipVBtn').onclick=()=>alter('V');$('rotateBtn').onclick=()=>alter('R');$('clearBtn').onclick=async()=>{if(!await confirmModal('현재 프레임 비우기','현재 프레임의 모든 픽셀을 지웁니다.'))return;checkpoint();s.frames[s.current]=Array(sz()*sz()).fill(null);saveEdit()};$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;
 $('pngBtn').onclick=()=>exportPNG(1);$('pngRawBtn').onclick=()=>exportPNG(1);$('pngBigBtn').onclick=()=>exportPNG(8);$('gifBtn').onclick=exportGIF;$('saveGifBtn').onclick=exportGIF;$('projectSaveBtn').onclick=exportProject;$('saveJsonBtn').onclick=exportProject;
 $('addFrameBtn').onclick=()=>frameAction('add');$('dupFrameBtn').onclick=()=>frameAction('dup');$('deleteFrameBtn').onclick=()=>frameAction('delete');$('prevFrameBtn').onclick=()=>frameAction('prev');$('nextFrameBtn').onclick=()=>frameAction('next');$('playBtn').onclick=togglePlay;$('fps').onchange=e=>{s.fps=+e.target.value;if(s.fps!==0)s.delays=Array(s.frames.length).fill(Math.round(1000/s.fps));drawFrameThumbnails();persist();if(playTimer){stop();togglePlay()}};
-$('newBtn').onclick=async()=>{if(!await confirmModal('새 프로젝트','현재 편집 중인 내용이 새 작업으로 교체됩니다. 필요한 경우 먼저 프로젝트를 저장하세요.'))return;stop();history=[];future=[];s.frames=[Array(sz()*sz()).fill(null)];s.delays=[167];s.fps=6;s.current=0;s.name='새 픽셀 아트';syncUI();persist()};$('projectTitle').onclick=()=>{const next=prompt('프로젝트 이름',s.name);if(next&&next.trim()){s.name=next.trim().slice(0,80);syncUI();persist()}};$('projectTitle').style.cursor='text';$('projectTitle').title='터치하여 작업 이름 바꾸기';$('openBtn').onclick=()=>$('projectFile').click();$('projectFile').onchange=e=>{importProject(e.target.files?.[0]);e.target.value=''};$('imageBtn').onclick=()=>$('imgFile').click();$('gifTopBtn').onclick=()=>{$('right').classList.remove('isHiddenMobile');$('scene').classList.add('isHiddenMobile');$('left').classList.add('isHiddenMobile');$('device').classList.add('isHiddenMobile');$$('[data-goto]').forEach(x=>x.classList.toggle('on',x.dataset.goto==='right'));$('right').scrollIntoView({behavior:'smooth',block:'start'});$('gifFile').click()};$('gifImportBtn').onclick=()=>$('gifFile').click();$('gifFile').onchange=e=>{importGIF(e.target.files?.[0]);e.target.value=''};$('imgFile').onchange=e=>{importImage(e.target.files?.[0]);e.target.value=''};
+$('newBtn').onclick=async()=>{if(!await confirmModal('새 프로젝트','현재 편집 중인 내용이 새 작업으로 교체됩니다. 필요한 경우 먼저 프로젝트를 저장하세요.'))return;stop();history=[];future=[];s.frames=[Array(sz()*sz()).fill(null)];s.delays=[167];s.fps=6;s.current=0;s.name='새 픽셀 아트';syncUI();persist()};$('projectTitle').onclick=()=>{const next=prompt('프로젝트 이름',s.name);if(next&&next.trim()){s.name=next.trim().slice(0,80);syncUI();persist()}};$('projectTitle').style.cursor='text';$('projectTitle').title='터치하여 작업 이름 바꾸기';$('openBtn').onclick=()=>$('projectFile').click();$('projectFile').onchange=e=>{importProject(e.target.files?.[0]);e.target.value=''};$('imageBtn').onclick=()=>$('imgFile').click();$('gifTopBtn').onclick=()=>{if(window.matchMedia('(max-width:700px)').matches){$$('[data-goto]').find(x=>x.dataset.goto==='right')?.click();}else $('right').scrollIntoView({behavior:'smooth'});};$('gifImportBtn').onclick=()=>$('gifFile').click();$('gifFile').onchange=e=>{importGIF(e.target.files?.[0]);e.target.value=''};$('imgFile').onchange=e=>{importImage(e.target.files?.[0]);e.target.value=''};
 $$('[data-tab]').forEach(b=>b.onclick=()=>{templateTab=b.dataset.tab;$$('[data-tab]').forEach(x=>x.classList.toggle('on',x===b));drawSamples()});$('connectBtn').onclick=connectBle;$('topConnectBtn').onclick=()=>{if(window.matchMedia('(max-width:700px)').matches){$$('[data-goto]').find(x=>x.dataset.goto==='device')?.click()}if(!nativeConnected)connectBle();else toast('LED 기기가 연결되어 있습니다. 해제는 기기 탭에서 할 수 있습니다.')};$('reconnectBtn').onclick=()=>{if(window.NativeApp)NativeApp.reconnect();else connectBle()};$('sendBtn').onclick=sendAll;$('sendGifDeviceBtn').onclick=sendGifToDevice;
 $('deviceBrightness').onchange=e=>{const v=+e.target.value;$('deviceBrightnessValue').textContent=v;if(window.NativeApp)NativeApp.control('brightness',v)};
 $('deviceBrightness').oninput=e=>$('deviceBrightnessValue').textContent=e.target.value;
@@ -528,7 +650,7 @@ $('textMakeBtn').onclick=()=>{if(makeTextAsset()&&window.matchMedia('(max-width:
 $('textSendBtn').onclick=async()=>{if(!ensureLED()||!makeTextAsset())return;if(s.frames.length>1)await sendGifToDevice();else await sendAll()};
 
 $('liveBle').onchange=e=>{if(e.target.checked&&!(window.NativeApp?nativeConnected:bleChar)){e.target.checked=false;toast('먼저 블루투스 기기에 연결해야 합니다.')}else if(window.NativeApp)NativeApp.control('diy',e.target.checked?1:0)};
-$$('[data-goto]').forEach(b=>b.onclick=()=>{const id=b.dataset.goto;$$('[data-goto]').forEach(x=>x.classList.toggle('on',x===b));['left','right','scene','device'].forEach(k=>$(k).classList.toggle('isHiddenMobile',k!==id));window.scrollTo({top:0,behavior:'smooth'})});
+$$('[data-goto]').forEach(b=>b.onclick=()=>{const id=b.dataset.goto;$$('[data-goto]').forEach(x=>x.classList.toggle('on',x===b));['left','right','scene','device'].forEach(k=>$(k).classList.toggle('isHiddenMobile',k!==id));document.querySelector('.sceneWrap').classList.toggle('isHiddenMobile',id!=='scene');window.scrollTo({top:0,behavior:'instant'})});
 ['dragenter','dragover'].forEach(ev=>board.addEventListener(ev,e=>{e.preventDefault();board.style.outline='3px solid #79e0c7'}));board.addEventListener('dragleave',()=>board.style.outline='');board.addEventListener('drop',e=>{e.preventDefault();board.style.outline='';const f=e.dataTransfer?.files?.[0];if(f)importImage(f)});window.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement?.tagName))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}else if(e.key===' '){e.preventDefault();togglePlay()}else if(/^[1-8]$/.test(e.key)){const all=['pen','erase','fill','pick','line','rect','ellipse','spark'];setTool(all[+e.key-1])}});
 }
 const BLE_SERVICE='000000fa-0000-1000-8000-00805f9b34fb',BLE_WRITE='0000fa02-0000-1000-8000-00805f9b34fb';
@@ -536,7 +658,7 @@ let nativeConnected=false;
 function bleStatus(t,ok){$('bleStatus').textContent=t;$('bleDot').classList.toggle('connected',!!ok);$('deviceStatusHeader').textContent=ok?'● 기기 연결됨':'○ 연결 대기';$('topConnectBtn').textContent=ok?'● 연결됨':'⌁ 기기 연결'}
 window.nativeBleStatus=(msg,connected)=>{nativeConnected=!!connected;bleStatus(msg,connected);$('connectBtn').textContent=connected?'연결 해제':'⌁ 주변 LED 검색·연결';const d=document.querySelector('.mobileNav [data-goto="device"]');if(d)d.classList.toggle('deviceConnected',!!connected);if(!connected)$('liveBle').checked=false};
 window.nativeBleProgress=(message)=>{$('deviceProgress').textContent=message;toast(message)};
-window.nativeBack=()=>{if($('modal').classList.contains('show')){$('modalCancel').click();return true}if(window.matchMedia('(max-width:700px)').matches&&$('scene').classList.contains('isHiddenMobile')){$$('[data-goto]').find(b=>b.dataset.goto==='scene')?.click();return true}return false};
+window.nativeBack=()=>{if($('galleryPreviewOverlay').classList.contains('visible')){closeGalleryPreview();return true}if($('modal').classList.contains('show')){$('modalCancel').click();return true}if(window.matchMedia('(max-width:700px)').matches&&$('scene').classList.contains('isHiddenMobile')){$$('[data-goto]').find(b=>b.dataset.goto==='scene')?.click();return true}return false};
 async function connectBle(){
  if(window.NativeApp){if(nativeConnected){NativeApp.disconnect();return}bleStatus('Android BLE 검색 준비 중…',false);NativeApp.connect();return}
  if(bleDevice?.gatt?.connected){bleDevice.gatt.disconnect();bleChar=null;bleStatus('연결 종료',false);$('connectBtn').textContent='⌁ 주변 LED 검색·연결';return}
@@ -566,7 +688,57 @@ async function sendGifToDevice(){
  NativeApp.gif(bytesToB64(bytes),+$('gifIndex').value);
  }catch(e){$('deviceProgress').textContent='GIF 전송 실패: '+e.message}
 }
-function init(){try{const saved=localStorage.getItem('pixel-lab-project-v1');if(saved)restore(JSON.parse(saved))}catch(e){/* Some file-origin browsers disable localStorage. */}renderPalette();wire();drawSamples();syncUI();if(window.matchMedia('(max-width:700px)').matches){$('left').classList.add('isHiddenMobile');$('right').classList.add('isHiddenMobile');$('device').classList.add('isHiddenMobile')}window.addEventListener('beforeunload',()=>{try{localStorage.setItem('pixel-lab-project-v1',JSON.stringify(s))}catch(e){}})}
+
+/* Self-contained bundled animated pixel gallery. The GIFs are original 32x32 assets. */
+const GALLERY_CATALOG={"categories":[{"id":"arcade","name":"8비트 아케이드"},{"id":"retro","name":"고전게임 HUD"},{"id":"cafe","name":"카페·베이커리"},{"id":"signage","name":"매장·안내"},{"id":"transit","name":"교통·이동"},{"id":"safety","name":"공사·안전"},{"id":"tech","name":"테크·데이터"},{"id":"weather","name":"날씨·도시"},{"id":"audio","name":"음악·미디어"},{"id":"objects","name":"모던 오브젝트"}],"samples":[{"id":"arcade_01","name":"아케이드 머신","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_01.gif","frames":8},{"id":"arcade_02","name":"우주 전투기","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_02.gif","frames":8},{"id":"arcade_03","name":"외계 침략자","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_03.gif","frames":8},{"id":"arcade_04","name":"유성 회피","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_04.gif","frames":8},{"id":"arcade_05","name":"픽셀 기사","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_05.gif","frames":8},{"id":"arcade_06","name":"던전 횃불","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_06.gif","frames":8},{"id":"arcade_07","name":"보물 상자","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_07.gif","frames":8},{"id":"arcade_08","name":"전설의 검","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_08.gif","frames":8},{"id":"arcade_09","name":"조이스틱","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_09.gif","frames":8},{"id":"arcade_10","name":"획득 코인","category":"arcade","categoryName":"8비트 아케이드","file":"arcade_10.gif","frames":8},{"id":"retro_01","name":"플랫폼 이동","category":"retro","categoryName":"고전게임 HUD","file":"retro_01.gif","frames":8},{"id":"retro_02","name":"워프 파이프","category":"retro","categoryName":"고전게임 HUD","file":"retro_02.gif","frames":8},{"id":"retro_03","name":"블록 파괴","category":"retro","categoryName":"고전게임 HUD","file":"retro_03.gif","frames":8},{"id":"retro_04","name":"화염 발사","category":"retro","categoryName":"고전게임 HUD","file":"retro_04.gif","frames":8},{"id":"retro_05","name":"포털 회전","category":"retro","categoryName":"고전게임 HUD","file":"retro_05.gif","frames":8},{"id":"retro_06","name":"체력 게이지","category":"retro","categoryName":"고전게임 HUD","file":"retro_06.gif","frames":8},{"id":"retro_07","name":"레벨 진행바","category":"retro","categoryName":"고전게임 HUD","file":"retro_07.gif","frames":8},{"id":"retro_08","name":"체크포인트","category":"retro","categoryName":"고전게임 HUD","file":"retro_08.gif","frames":8},{"id":"retro_09","name":"보스 경고","category":"retro","categoryName":"고전게임 HUD","file":"retro_09.gif","frames":8},{"id":"retro_10","name":"우주 스크롤","category":"retro","categoryName":"고전게임 HUD","file":"retro_10.gif","frames":8},{"id":"cafe_01","name":"에스프레소 머신","category":"cafe","categoryName":"카페·베이커리","file":"cafe_01.gif","frames":8},{"id":"cafe_02","name":"커피 스팀","category":"cafe","categoryName":"카페·베이커리","file":"cafe_02.gif","frames":8},{"id":"cafe_03","name":"라떼 잔","category":"cafe","categoryName":"카페·베이커리","file":"cafe_03.gif","frames":8},{"id":"cafe_04","name":"포트 끓이기","category":"cafe","categoryName":"카페·베이커리","file":"cafe_04.gif","frames":8},{"id":"cafe_05","name":"카페 OPEN","category":"cafe","categoryName":"카페·베이커리","file":"cafe_05.gif","frames":8},{"id":"cafe_06","name":"크루아상","category":"cafe","categoryName":"카페·베이커리","file":"cafe_06.gif","frames":8},{"id":"cafe_07","name":"갓 구운 빵","category":"cafe","categoryName":"카페·베이커리","file":"cafe_07.gif","frames":8},{"id":"cafe_08","name":"원두 로스팅","category":"cafe","categoryName":"카페·베이커리","file":"cafe_08.gif","frames":8},{"id":"cafe_09","name":"커피 그라인더","category":"cafe","categoryName":"카페·베이커리","file":"cafe_09.gif","frames":8},{"id":"cafe_10","name":"테이크아웃 컵","category":"cafe","categoryName":"카페·베이커리","file":"cafe_10.gif","frames":8},{"id":"signage_01","name":"OPEN 표시","category":"signage","categoryName":"매장·안내","file":"signage_01.gif","frames":8},{"id":"signage_02","name":"CLOSED 표시","category":"signage","categoryName":"매장·안내","file":"signage_02.gif","frames":8},{"id":"signage_03","name":"WELCOME 간판","category":"signage","categoryName":"매장·안내","file":"signage_03.gif","frames":8},{"id":"signage_04","name":"SALE 네온","category":"signage","categoryName":"매장·안내","file":"signage_04.gif","frames":8},{"id":"signage_05","name":"출구 화살표","category":"signage","categoryName":"매장·안내","file":"signage_05.gif","frames":8},{"id":"signage_06","name":"화장실 표지","category":"signage","categoryName":"매장·안내","file":"signage_06.gif","frames":8},{"id":"signage_07","name":"안내 인포","category":"signage","categoryName":"매장·안내","file":"signage_07.gif","frames":8},{"id":"signage_08","name":"무료 Wi-Fi","category":"signage","categoryName":"매장·안내","file":"signage_08.gif","frames":8},{"id":"signage_09","name":"QR 안내","category":"signage","categoryName":"매장·안내","file":"signage_09.gif","frames":8},{"id":"signage_10","name":"24시간 영업","category":"signage","categoryName":"매장·안내","file":"signage_10.gif","frames":8},{"id":"transit_01","name":"교통 신호","category":"transit","categoryName":"교통·이동","file":"transit_01.gif","frames":8},{"id":"transit_02","name":"보행 신호","category":"transit","categoryName":"교통·이동","file":"transit_02.gif","frames":8},{"id":"transit_03","name":"시티 바이크","category":"transit","categoryName":"교통·이동","file":"transit_03.gif","frames":8},{"id":"transit_04","name":"지하철 도착","category":"transit","categoryName":"교통·이동","file":"transit_04.gif","frames":8},{"id":"transit_05","name":"비행기 운항","category":"transit","categoryName":"교통·이동","file":"transit_05.gif","frames":8},{"id":"transit_06","name":"시내버스","category":"transit","categoryName":"교통·이동","file":"transit_06.gif","frames":8},{"id":"transit_07","name":"택시 호출","category":"transit","categoryName":"교통·이동","file":"transit_07.gif","frames":8},{"id":"transit_08","name":"주차 표시","category":"transit","categoryName":"교통·이동","file":"transit_08.gif","frames":8},{"id":"transit_09","name":"전철 노선","category":"transit","categoryName":"교통·이동","file":"transit_09.gif","frames":8},{"id":"transit_10","name":"길찾기 화살표","category":"transit","categoryName":"교통·이동","file":"transit_10.gif","frames":8},{"id":"safety_01","name":"안전 라바콘","category":"safety","categoryName":"공사·안전","file":"safety_01.gif","frames":8},{"id":"safety_02","name":"안전모 착용","category":"safety","categoryName":"공사·안전","file":"safety_02.gif","frames":8},{"id":"safety_03","name":"굴착기 작업","category":"safety","categoryName":"공사·안전","file":"safety_03.gif","frames":8},{"id":"safety_04","name":"타워크레인","category":"safety","categoryName":"공사·안전","file":"safety_04.gif","frames":8},{"id":"safety_05","name":"공사 바리케이드","category":"safety","categoryName":"공사·안전","file":"safety_05.gif","frames":8},{"id":"safety_06","name":"주의 삼각표지","category":"safety","categoryName":"공사·안전","file":"safety_06.gif","frames":8},{"id":"safety_07","name":"공구 작업","category":"safety","categoryName":"공사·안전","file":"safety_07.gif","frames":8},{"id":"safety_08","name":"위험 테이프","category":"safety","categoryName":"공사·안전","file":"safety_08.gif","frames":8},{"id":"safety_09","name":"경고등 점멸","category":"safety","categoryName":"공사·안전","file":"safety_09.gif","frames":8},{"id":"safety_10","name":"도로 공사","category":"safety","categoryName":"공사·안전","file":"safety_10.gif","frames":8},{"id":"tech_01","name":"터미널 커서","category":"tech","categoryName":"테크·데이터","file":"tech_01.gif","frames":8},{"id":"tech_02","name":"CPU 작동","category":"tech","categoryName":"테크·데이터","file":"tech_02.gif","frames":8},{"id":"tech_03","name":"배터리 충전","category":"tech","categoryName":"테크·데이터","file":"tech_03.gif","frames":8},{"id":"tech_04","name":"USB 연결","category":"tech","categoryName":"테크·데이터","file":"tech_04.gif","frames":8},{"id":"tech_05","name":"파일 정리","category":"tech","categoryName":"테크·데이터","file":"tech_05.gif","frames":8},{"id":"tech_06","name":"클라우드 업로드","category":"tech","categoryName":"테크·데이터","file":"tech_06.gif","frames":8},{"id":"tech_07","name":"와이파이 신호","category":"tech","categoryName":"테크·데이터","file":"tech_07.gif","frames":8},{"id":"tech_08","name":"로봇 팔","category":"tech","categoryName":"테크·데이터","file":"tech_08.gif","frames":8},{"id":"tech_09","name":"네트워크 케이블","category":"tech","categoryName":"테크·데이터","file":"tech_09.gif","frames":8},{"id":"tech_10","name":"저장 디스크","category":"tech","categoryName":"테크·데이터","file":"tech_10.gif","frames":8},{"id":"weather_01","name":"맑음 태양","category":"weather","categoryName":"날씨·도시","file":"weather_01.gif","frames":8},{"id":"weather_02","name":"초승달 밤","category":"weather","categoryName":"날씨·도시","file":"weather_02.gif","frames":8},{"id":"weather_03","name":"도시의 비","category":"weather","categoryName":"날씨·도시","file":"weather_03.gif","frames":8},{"id":"weather_04","name":"번개 구름","category":"weather","categoryName":"날씨·도시","file":"weather_04.gif","frames":8},{"id":"weather_05","name":"겨울 눈","category":"weather","categoryName":"날씨·도시","file":"weather_05.gif","frames":8},{"id":"weather_06","name":"강풍 표시","category":"weather","categoryName":"날씨·도시","file":"weather_06.gif","frames":8},{"id":"weather_07","name":"도시 야경","category":"weather","categoryName":"날씨·도시","file":"weather_07.gif","frames":8},{"id":"weather_08","name":"가로등 불빛","category":"weather","categoryName":"날씨·도시","file":"weather_08.gif","frames":8},{"id":"weather_09","name":"일출 풍경","category":"weather","categoryName":"날씨·도시","file":"weather_09.gif","frames":8},{"id":"weather_10","name":"별이 흐르는 밤","category":"weather","categoryName":"날씨·도시","file":"weather_10.gif","frames":8},{"id":"audio_01","name":"카세트 재생","category":"audio","categoryName":"음악·미디어","file":"audio_01.gif","frames":8},{"id":"audio_02","name":"턴테이블 LP","category":"audio","categoryName":"음악·미디어","file":"audio_02.gif","frames":8},{"id":"audio_03","name":"이퀄라이저","category":"audio","categoryName":"음악·미디어","file":"audio_03.gif","frames":8},{"id":"audio_04","name":"스피커 사운드","category":"audio","categoryName":"음악·미디어","file":"audio_04.gif","frames":8},{"id":"audio_05","name":"헤드폰","category":"audio","categoryName":"음악·미디어","file":"audio_05.gif","frames":8},{"id":"audio_06","name":"라디오 주파수","category":"audio","categoryName":"음악·미디어","file":"audio_06.gif","frames":8},{"id":"audio_07","name":"무대 마이크","category":"audio","categoryName":"음악·미디어","file":"audio_07.gif","frames":8},{"id":"audio_08","name":"피아노 건반","category":"audio","categoryName":"음악·미디어","file":"audio_08.gif","frames":8},{"id":"audio_09","name":"음표 움직임","category":"audio","categoryName":"음악·미디어","file":"audio_09.gif","frames":8},{"id":"audio_10","name":"레트로 TV","category":"audio","categoryName":"음악·미디어","file":"audio_10.gif","frames":8},{"id":"objects_01","name":"초침 시계","category":"objects","categoryName":"모던 오브젝트","file":"objects_01.gif","frames":8},{"id":"objects_02","name":"네온 방향표","category":"objects","categoryName":"모던 오브젝트","file":"objects_02.gif","frames":8},{"id":"objects_03","name":"모래시계","category":"objects","categoryName":"모던 오브젝트","file":"objects_03.gif","frames":8},{"id":"objects_04","name":"촛불 타오름","category":"objects","categoryName":"모던 오브젝트","file":"objects_04.gif","frames":8},{"id":"objects_05","name":"숫자 카운터","category":"objects","categoryName":"모던 오브젝트","file":"objects_05.gif","frames":8},{"id":"objects_06","name":"로딩 링","category":"objects","categoryName":"모던 오브젝트","file":"objects_06.gif","frames":8},{"id":"objects_07","name":"기하학 파형","category":"objects","categoryName":"모던 오브젝트","file":"objects_07.gif","frames":8},{"id":"objects_08","name":"보석 빛남","category":"objects","categoryName":"모던 오브젝트","file":"objects_08.gif","frames":8},{"id":"objects_09","name":"화분 성장","category":"objects","categoryName":"모던 오브젝트","file":"objects_09.gif","frames":8},{"id":"objects_10","name":"환풍기 회전","category":"objects","categoryName":"모던 오브젝트","file":"objects_10.gif","frames":8}]};
+let galleryCategory='all',galleryLimit=24,gallerySelection=null;
+function galleryFiltered(){const q=$('gallerySearch').value.toLowerCase().trim();return GALLERY_CATALOG.samples.filter(x=>(galleryCategory==='all'||x.category===galleryCategory)&&(!q||(x.name+' '+x.categoryName+' '+x.id).toLowerCase().includes(q)))}
+function renderGallery(){
+ const cats=$('galleryCategories');cats.innerHTML='';
+ [{id:'all',name:'전체 100종'},...GALLERY_CATALOG.categories].forEach(item=>{
+  const btn=document.createElement('button');btn.type='button';btn.textContent=item.name;btn.classList.toggle('on',item.id===galleryCategory);
+  btn.onclick=()=>{galleryCategory=item.id;galleryLimit=24;renderGallery()};cats.append(btn)
+ });
+ const matches=galleryFiltered(),grid=$('galleryGrid');grid.innerHTML='';$('galleryCount').textContent=`${matches.length}종`;
+ matches.slice(0,galleryLimit).forEach(item=>{
+  const btn=document.createElement('button');btn.type='button';btn.className='galleryItem';btn.setAttribute('aria-label',item.name+' 움직이는 애니메이션 미리보기');
+  const pic=document.createElement('img');pic.src='gallery/'+item.file;pic.alt='';pic.loading='lazy';pic.decoding='async';
+  const label=document.createElement('span');label.className='galleryName';label.textContent=item.name;
+  const category=document.createElement('span');category.className='galleryCategory';category.textContent=item.categoryName;
+  btn.append(pic,label,category);btn.onclick=()=>openGalleryPreview(item);grid.append(btn)
+ });
+ const more=$('galleryMore');more.hidden=galleryLimit>=matches.length;more.textContent=`더 보기 (${Math.min(galleryLimit,matches.length)} / ${matches.length})`;
+}
+function openGalleryPreview(item){gallerySelection=item;const modal=$('galleryPreviewOverlay');$('galleryPreviewTitle').textContent=item.name;$('galleryPreviewCategory').textContent=item.categoryName;
+ $('galleryPreviewImage').src='gallery/'+item.file;$('galleryPreviewImage').alt=item.name+' 움직이는 픽셀 GIF';modal.classList.add('visible');modal.setAttribute('aria-hidden','false');$('galleryPreviewClose').focus();}
+function closeGalleryPreview(){const modal=$('galleryPreviewOverlay');modal.classList.remove('visible');modal.setAttribute('aria-hidden','true');$('galleryPreviewImage').removeAttribute('src')}
+function galleryBytesFromB64(value){const raw=atob(value);const array=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)array[i]=raw.charCodeAt(i);return array}
+async function getGalleryBytes(item){
+ if(!item||!GALLERY_CATALOG.samples.some(x=>x.id===item.id))throw Error('샘플을 찾지 못했습니다.');
+ if(window.NativeApp&&NativeApp.galleryGif){const b64=NativeApp.galleryGif(item.file);if(!b64)throw Error('내장 GIF를 열 수 없습니다.');return galleryBytesFromB64(b64)}
+ const response=await fetch('gallery/'+item.file);if(!response.ok)throw Error('내장 GIF 파일을 읽지 못했습니다.');return new Uint8Array(await response.arrayBuffer());
+}
+async function galleryLoad(alsoSend){const item=gallerySelection;if(!item)return;
+ try{if(alsoSend&&!nativeConnected){closeGalleryPreview();$$('[data-goto]').find(x=>x.dataset.goto==='device')?.click();toast('먼저 LED를 연결한 뒤 샘플을 전송하세요.');return}
+ const bytes=await getGalleryBytes(item),f=new File([bytes],item.name+'.gif',{type:'image/gif'});
+ const success=await importGIF(f);if(success===false)return;
+ s.name=item.name;syncUI();persist();closeGalleryPreview();
+ if(alsoSend){await sendGifToDevice();toast(item.name+' LED 전송 요청')}
+ else{$$('[data-goto]').find(x=>x.dataset.goto==='scene')?.click();toast(item.name+' 애니메이션을 편집기에 불러왔습니다.')}
+ }catch(e){toast('샘플을 불러올 수 없습니다: '+e.message)}
+}
+function initGallery(){
+ $('gallerySearch').addEventListener('input',()=>{galleryLimit=24;renderGallery()});
+ $('galleryMore').onclick=()=>{galleryLimit+=24;renderGallery()};
+ $('galleryPreviewClose').onclick=closeGalleryPreview;
+ $('galleryPreviewOverlay').onclick=e=>{if(e.target.id==='galleryPreviewOverlay')closeGalleryPreview()};
+ $('galleryApply').onclick=()=>galleryLoad(false);$('gallerySend').onclick=()=>galleryLoad(true);
+ $('galleryDownload').onclick=async()=>{const item=gallerySelection;if(!item)return;try{const bytes=await getGalleryBytes(item);download(new Blob([bytes],{type:'image/gif'}),item.id+'_'+item.name+'.gif');toast(item.name+' GIF 저장')}catch(e){toast(e.message)}};
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('galleryPreviewOverlay').classList.contains('visible'))closeGalleryPreview()});
+ renderGallery();
+}
+
+function init(){try{const saved=localStorage.getItem('pixel-lab-project-v1');if(saved)restore(JSON.parse(saved))}catch(e){/* Some file-origin browsers disable localStorage. */}renderPalette();wire();drawSamples();initGallery();syncUI();if(window.matchMedia('(max-width:700px)').matches){$('left').classList.add('isHiddenMobile');$('right').classList.add('isHiddenMobile');$('device').classList.add('isHiddenMobile')}window.addEventListener('beforeunload',()=>{try{localStorage.setItem('pixel-lab-project-v1',JSON.stringify(s))}catch(e){}})}
 init();
 })();
 </script>

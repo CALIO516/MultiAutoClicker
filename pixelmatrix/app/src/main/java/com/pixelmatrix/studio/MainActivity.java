@@ -41,6 +41,8 @@ import java.util.Calendar;
 import android.view.View;
 
 import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -392,6 +394,15 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void disconnect(){ui.post(()->MainActivity.this.disconnect());}
         @JavascriptInterface public void reconnect(){ui.post(()->reconnectLast());}
         @JavascriptInterface public boolean isConnected(){return connected;}
+        @JavascriptInterface public String galleryGif(String fileName){
+            if(fileName==null || !fileName.matches("[a-z]+_[0-9]{2}\\.gif"))return "";
+            try(InputStream in=getAssets().open("gallery/"+fileName);ByteArrayOutputStream out=new ByteArrayOutputStream()){
+                byte[] buf=new byte[4096];int n;int total=0;
+                while((n=in.read(buf))!=-1){total+=n;if(total>512000)return "";out.write(buf,0,n);}
+                return Base64.encodeToString(out.toByteArray(),Base64.NO_WRAP);
+            }catch(Exception ex){return "";}
+        }
+
         @JavascriptInterface public void rgb(String b64,int dimension){
             if(!connected){log("먼저 LED 기기에 연결하세요.");return;}
             try{

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="app_name">TELESIN 버튼 회전</string>
+<string name="accessibility_description">사용자가 TELESIN 90도 회전을 실행했을 때만 Smart View 실험실의 회전 항목을 찾아 탭합니다. 화면 내용을 저장하거나 전송하지 않습니다.</string>
+</resources>

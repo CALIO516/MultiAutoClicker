@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application android:label="TELESIN 버튼 회전" android:allowBackup="false" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+    <activity android:name=".MainActivity" android:exported="true" android:label="TELESIN 회전 설정">
+      <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+    </activity>
+    <activity android:name=".RotateActivity" android:exported="false" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+    <activity-alias android:name=".RotateShortcut" android:exported="true" android:label="TELESIN 90도 회전" android:targetActivity=".RotateActivity" android:icon="@android:drawable/ic_menu_manage">
+      <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+    </activity-alias>
+    <service android:name=".RotateService" android:exported="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:label="TELESIN 회전 제어 접근성">
+      <intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter>
+      <meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility_config"/>
+    </service>
+  </application>
+</manifest>

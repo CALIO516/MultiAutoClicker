@@ -395,7 +395,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void reconnect(){ui.post(()->reconnectLast());}
         @JavascriptInterface public boolean isConnected(){return connected;}
         @JavascriptInterface public String galleryGif(String fileName){
-            if(fileName==null || !fileName.matches("[a-z]+_[0-9]{2}\\.gif"))return "";
+            if(fileName==null || !fileName.matches("(?:v22/pixel_[0-9]{3}|premium_[0-9]{3})\\.gif"))return "";
             try(InputStream in=getAssets().open("gallery/"+fileName);ByteArrayOutputStream out=new ByteArrayOutputStream()){
                 byte[] buf=new byte[4096];int n;int total=0;
                 while((n=in.read(buf))!=-1){total+=n;if(total>512000)return "";out.write(buf,0,n);}

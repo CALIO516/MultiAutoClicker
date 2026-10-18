@@ -230,7 +230,7 @@ def choose():
    box=b[0].getchannel('A').getbbox()
    return bool(box and (box[2]-box[0]>=5) and (box[3]-box[1]>=4))
   except Exception:return False
- sets={"hero":([x for x in heroes if good(x)],28),"enemy":([x for x in enemies if good(x)],80),"item":([x for x in items if good(x)],22),"trap":([x for x in traps if good(x)],38),"ninja":([x for x in ninja if good(x)],12)}
+ sets={"hero":([x for x in heroes if good(x)],28),"enemy":([x for x in enemies if good(x)],85),"item":([x for x in items if good(x)],22),"trap":([x for x in traps if good(x)],38),"ninja":([x for x in ninja if good(x)],7)}
  specs=[]
  for k,(l,target) in sets.items():
   # Fill to target from pool if curations excluded some.

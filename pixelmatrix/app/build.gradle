@@ -14,7 +14,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    signingConfigs {
+        stableDebug {
+            storeFile file('signing/debug.keystore')
+            storePassword 'android'
+            keyAlias 'pixelmatrix'
+            keyPassword 'android'
+        }
+    }
     buildTypes {
+        debug { signingConfig signingConfigs.stableDebug }
         release { minifyEnabled false }
     }
 }

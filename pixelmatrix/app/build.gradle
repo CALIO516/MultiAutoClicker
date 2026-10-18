@@ -4,11 +4,11 @@ android {
     namespace 'com.pixelmatrix.studio'
     compileSdk 35
     defaultConfig {
-        applicationId 'com.pixelmatrix.studio.v23'
+        applicationId 'com.pixelmatrix.studio.v24'
         minSdk 26
         targetSdk 34
-        versionCode 23
-        versionName '2.3.0'
+        versionCode 24
+        versionName '2.4.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

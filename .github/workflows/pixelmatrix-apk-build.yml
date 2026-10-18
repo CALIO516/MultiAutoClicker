@@ -1,4 +1,4 @@
-name: PixelMatrix Studio 2.3 APK Build
+name: PixelMatrix Studio 2.4 APK Build
 on:
   push:
     branches: [pixelmatrix-studio-apk-build]
@@ -27,13 +27,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Extract polished GIF artpack
+      - name: Extract 200 animated assets
         run: |
-          rm -rf app/src/main/assets/gallery/v22
           mkdir -p app/src/main/assets/gallery/v22
-          cat artpacks/v23.*.bin > premium_artpack_v23.tar.xz
-          tar -xJf premium_artpack_v23.tar.xz -C app/src/main/assets/gallery/v22
-      - name: Verify sample animations and application version
+          cat artpacks/v24.*.bin > premium_artpack_v24.tar.xz
+          tar -xJf premium_artpack_v24.tar.xz -C app/src/main/assets/gallery/v22
+      - name: Verify assets and version
         run: |
           python3 -m pip install --quiet --user pillow
           python3 - <<'PYV'
@@ -47,16 +46,24 @@ jobs:
           for s in cat['samples']:
               p=root/'gallery'/s['file']
               assert p.is_file(), p
-              with Image.open(p) as im: assert im.size==(64,64) and im.n_frames==8, p
-          assert "versionName '2.3.0'" in Path('app/build.gradle').read_text()
-          assert 'PixelMatrix Studio 2.3' in Path('app/src/main/AndroidManifest.xml').read_text()
-          assert 'v2.3' in (root/'index.html').read_text()
-          print('PASS: 200 GIFs, 8 frames each, 10 categories, version 2.3.0')
+              with Image.open(p) as im:
+                  assert im.size==(64,64) and im.n_frames==8, p
+          gradle=Path('app/build.gradle').read_text()
+          assert "applicationId 'com.pixelmatrix.studio.v24'" in gradle
+          assert "versionName '2.4.0'" in gradle
+          assert 'PixelMatrix Studio 2.4' in Path('app/src/main/AndroidManifest.xml').read_text()
+          assert 'v2.4' in (root/'index.html').read_text()
+          print('PASS: 200 GIFs and version 2.4.0')
           PYV
-      - name: Compile Android APK
+      - name: Compile Android APK with Android build system
         run: gradle :app:assembleDebug --no-daemon --stacktrace
+      - name: Verify Android APK signatures and manifest
+        run: |
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -n 15
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-v2.3-CompiledAPK
+          name: PixelMatrixStudio-v2.4-Installable-APK
           path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30

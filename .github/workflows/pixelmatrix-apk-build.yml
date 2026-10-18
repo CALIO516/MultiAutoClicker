@@ -1,4 +1,4 @@
-name: PixelMatrix Studio 2.4 APK Build
+name: PixelMatrix Studio Stable APK
 on:
   push:
     branches: [pixelmatrix-studio-apk-build]
@@ -27,12 +27,27 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Extract 200 animated assets
+      - name: Prepare persistent signing directory
+        run: mkdir -p "$HOME/.android"
+      - name: Restore stable debug signing key for updates
+        id: signing-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: pixelmatrix-v27-stable-signing-v1
+      - name: Enforce signing continuity on future versions
+        run: |
+          VERSION_CODE=$(grep -Eo 'versionCode [0-9]+' app/build.gradle | cut -d' ' -f2)
+          if [ "$VERSION_CODE" -gt 27 ] && [ "${{ steps.signing-cache.outputs.cache-hit }}" != 'true' ]; then
+            echo 'ERROR: Stable signing keystore not restored; refusing build that could break updates.'
+            exit 1
+          fi
+      - name: Unpack 200 curated animated GIF assets
         run: |
           mkdir -p app/src/main/assets/gallery/v22
-          cat artpacks/v24.*.bin > premium_artpack_v24.tar.xz
-          tar -xJf premium_artpack_v24.tar.xz -C app/src/main/assets/gallery/v22
-      - name: Verify assets and version
+          cat artpacks/v27.*.bin > gallery_v27.tar.xz
+          tar -xJf gallery_v27.tar.xz -C app/src/main/assets/gallery/v22
+      - name: Check GIFs, version and Android bridge
         run: |
           python3 -m pip install --quiet --user pillow
           python3 - <<'PYV'
@@ -40,30 +55,49 @@ jobs:
           from PIL import Image
           import json
           root=Path('app/src/main/assets')
-          cat=json.loads((root/'gallery-catalog.json').read_text())
-          assert len(cat['categories'])==10 and len(cat['samples'])==200
-          assert all(c['count']==20 for c in cat['categories'])
-          for s in cat['samples']:
-              p=root/'gallery'/s['file']
-              assert p.is_file(), p
+          catalog=json.loads((root/'gallery-catalog.json').read_text())
+          assert len(catalog['samples'])==200 and len(catalog['categories'])==10
+          assert all(c['count']==20 for c in catalog['categories'])
+          for sample in catalog['samples']:
+              p=root/'gallery'/sample['file']
+              assert p.is_file(),p
               with Image.open(p) as im:
-                  assert im.size==(64,64) and im.n_frames==8, p
+                  assert im.size==(64,64) and im.n_frames==8,p
           gradle=Path('app/build.gradle').read_text()
-          assert "applicationId 'com.pixelmatrix.studio.v24'" in gradle
-          assert "versionName '2.4.0'" in gradle
-          assert 'PixelMatrix Studio 2.4' in Path('app/src/main/AndroidManifest.xml').read_text()
-          assert 'v2.4' in (root/'index.html').read_text()
-          print('PASS: 200 GIFs and version 2.4.0')
+          assert "applicationId 'com.pixelmatrix.studio.stable'" in gradle
+          assert 'versionCode 27' in gradle and "versionName '2.7.0'" in gradle
+          java=Path('app/src/main/java/com/pixelmatrix/studio/MainActivity.java').read_text()
+          assert 'galleryGif(String fileName)' in java and 'appVersion()' in java
+          html=(root/'index.html').read_text()
+          assert 'appVersionLabel' in html and 'function galleryLoad(alsoSend)' in html
+          print('PASS: asset integrity, stable package ID, version, editor bridge')
           PYV
-      - name: Compile Android APK with Android build system
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
-      - name: Verify Android APK signatures and manifest
+      - name: JavaScript syntax check (no preview execution)
+        run: |
+          python3 - <<'PYV'
+          from pathlib import Path
+          import re
+          h=Path('app/src/main/assets/index.html').read_text()
+          scripts=re.findall(r'<script[^>]*>(.*?)</script>',h,flags=re.S)
+          assert scripts
+          Path('/tmp/pm-static.js').write_text('\n'.join(scripts))
+          PYV
+          node --check /tmp/pm-static.js
+      - name: Compile clean Android APK
+        run: gradle --no-daemon --stacktrace :app:clean :app:assembleDebug
+      - name: Verify Android APK signature, package ID and version
         run: |
           APK=app/build/outputs/apk/debug/app-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -n 15
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -n 10
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.pixelmatrix.studio.stable' versionCode='27' versionName='2.7.0'"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$APK" > apk_signature.txt
+          sha256sum "$APK" > apk_sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-v2.4-Installable-APK
-          path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 30
+          name: PixelMatrixStudio-v2.7-Stable-APK
+          path: |
+            pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
+            pixelmatrix/apk_signature.txt
+            pixelmatrix/apk_sha256.txt
+          retention-days: 90

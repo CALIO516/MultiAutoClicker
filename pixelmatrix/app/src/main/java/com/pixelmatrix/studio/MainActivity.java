@@ -390,6 +390,10 @@ public class MainActivity extends Activity {
         for(int i=0;i<4;i++)arr[index+i]=(byte)((number>>(i*8))&255);
     }
     public final class Bridge {
+        @JavascriptInterface public String appVersion(){
+            try {return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}
+            catch(Exception e){return "2.7.0";}
+        }
         @JavascriptInterface public void connect(){ui.post(()->requestBle());}
         @JavascriptInterface public void disconnect(){ui.post(()->MainActivity.this.disconnect());}
         @JavascriptInterface public void reconnect(){ui.post(()->reconnectLast());}

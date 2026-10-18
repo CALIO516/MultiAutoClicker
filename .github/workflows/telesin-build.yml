@@ -25,9 +25,9 @@ jobs:
         with:
           gradle-version: '8.10.2'
       - run: gradle -p telesin-controller --no-daemon :app:assembleDebug
-      - run: cp telesin-controller/app/build/outputs/apk/debug/app-debug.apk TELESIN_AutoRotate_v0.1_test.apk
+      - run: cp telesin-controller/app/build/outputs/apk/debug/app-debug.apk TELESIN_AutoRotate_v0.2_diagnostic.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: TELESIN_AutoRotate_v0.1_test
-          path: TELESIN_AutoRotate_v0.1_test.apk
+          name: TELESIN_AutoRotate_v0.2_diagnostic
+          path: TELESIN_AutoRotate_v0.2_diagnostic.apk
           retention-days: 14

@@ -607,7 +607,7 @@ function gifFrameToPixels(screen,width,height,target,options){
  }
  return res;
 }
-async async function convertGIFFrames(parsed,options,report){
+async function convertGIFFrames(parsed,options,report){
  const {width,height,frames}=parsed,limit=Math.min(options.limit,frames.length),chosen=Array.from({length:limit},(_,i)=>limit===1?0:Math.round(i*(frames.length-1)/(limit-1)));
  const pick=new Set(chosen),full=new Uint8ClampedArray(width*height*4),result=[],delays=[];
  let prior=null,lastIdx=-1;
@@ -809,7 +809,7 @@ function gifLibraryDb(){return new Promise((resolve,reject)=>{
 async function loadMyGallery(){const db=await gifLibraryDb();const a=await new Promise((resolve,reject)=>{
  const q=db.transaction('samples','readonly').objectStore('samples').getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)});
  db.close();myGalleryItems=a.sort((a,b)=>(b.time||0)-(a.time||0));renderGallery();}
-async async function saveConvertedLibraryGif(name,frames,delays,fps,n){
+async function saveConvertedLibraryGif(name,frames,delays,fps,n){
  if(!Array.isArray(frames)||!frames.length||frames.length>120||n!==32)throw Error('라이브러리는 32×32 · 1~120프레임으로 변환 후 저장합니다.');
  const blob=gifEncode(frames,n,fps,delays);
  if(blob.size>12*1024*1024)throw Error('변환한 GIF가 12MB를 초과했습니다. 최대 프레임을 줄여주세요.');
@@ -853,13 +853,13 @@ function openGalleryPreview(item){gallerySelection=item;const modal=$('galleryPr
  $('galleryPreviewImage').src=item.custom?'data:image/gif;base64,'+item.b64:'gallery/'+item.file;$('galleryPreviewImage').alt=item.name+' 움직이는 픽셀 GIF';$('galleryResolution').value=String([16,32,64].includes(s.size)?s.size:32);$('galleryLoadStatus').textContent='';$('galleryApply').disabled=false;$('gallerySend').disabled=false;modal.classList.add('visible');modal.setAttribute('aria-hidden','false');$('galleryPreviewClose').focus();}
 function closeGalleryPreview(){const modal=$('galleryPreviewOverlay');modal.classList.remove('visible');modal.setAttribute('aria-hidden','true');$('galleryPreviewImage').removeAttribute('src')}
 function galleryBytesFromB64(value){const raw=atob(value);const array=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)array[i]=raw.charCodeAt(i);return array}
-async async function getGalleryBytes(item){
+async function getGalleryBytes(item){
  if(!item||!galleryAllItems().some(x=>x.id===item.id))throw Error('샘플을 찾지 못했습니다.');
  if(item.custom)return galleryBytesFromB64(item.b64);
  if(window.NativeApp&&NativeApp.galleryGif){const b64=NativeApp.galleryGif(item.file);if(!b64)throw Error('내장 GIF 읽기에 실패했습니다. 앱을 최신 버전으로 설치해 주세요.');return galleryBytesFromB64(b64)}
  const response=await fetch('gallery/'+item.file);if(!response.ok)throw Error('내장 GIF 파일을 읽지 못했습니다.');return new Uint8Array(await response.arrayBuffer());
 }
-async async function galleryLoad(alsoSend){
+async function galleryLoad(alsoSend){
  const item=gallerySelection;if(!item)return;
  const target=+$('galleryResolution').value;
  const message=$('galleryLoadStatus');const loadButton=$('galleryApply');const sendButton=$('gallerySend');

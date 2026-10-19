@@ -1,23 +1,11 @@
-# PixelMatrix Studio v2.2
+# PixelMatrix Studio v3.2
 
-iDotMatrix LED 패널에 넣을 이미지를 제작하고 편집하는 독립형 Android 도구입니다.
-
-- 내장 GIF 정상 열기: Android JavaScript 브리지 경로/파일명 검사 수정 (`v22/pixel_001.gif`)
-- 샘플 미리보기 → 편집기 가져오기: 다른 프로젝트의 확인 팝업에 가려지던 문제 제거; 편집기 화면으로 이동 및 프레임/시간 자동 반영
-- GIF 변환: 16×16, 32×32, 64×64 선택, 프레임 원본 시간 반영, 픽셀 경계 보존
-- 10개 분야 × 각 20종 = 200종. 게임 캐릭터·몬스터·아이템·카페·안내 표지·풍경·테크·생활·교통/공사·날씨/자연
-- 독립 프로젝트 패키지 `com.pixelmatrix.studio.v22`, 앱 이름 2.2, Android `versionName=2.2.0`
-- 기존 LED BLE 검색·전원·밝기·GIF 전송 유지. 실제 모델별 제어와 무선 전송은 실기기로 확인해야 합니다.
-
-## 사용
-
-1. GIF 탭 → 분류 선택 → 샘플 선택
-2. 미리보기에서 LED 해상도 선택
-3. **편집기로 가져오기** → 편집 화면에서 프레임별 작업
-4. LED 기기 연결 → PNG/GIF 전송 또는 파일 저장
-
-## 라이선스
-
-기존 캐릭터·몬스터·아이템 80종 및 일부 카페/안내 20종은 Pixel Frog(Pixel Adventure), Pixel-Boy & AAA(Ninja Adventure)의 CC0 리소스를 기반으로 재구성했습니다. 나머지 100종 이상은 앱용 오리지널 도트 레이어입니다. 특정 상용 게임의 캐릭터 스프라이트는 포함되지 않습니다.
-
-Android APK 컴파일과 이미지 형식 검사만으로 실제 단말/패널 동작이 입증되지는 않습니다. 기존 버전과 패키지를 분리해 설치합니다.
+- Default canvas is view-only; button `편집하기` unlocks pixel tools.
+- `수정 저장` commits edits to local project autosave; `취소` discards them.
+- Explicit `파일로 내보내기` still saves a portable project JSON.
+- General GIF input: 16 / 32 / 64 pixel output, frame limit 30/60/120, speed and color quantization options.
+- Android GIF fallback decoder is used when the pure JS GIF decoder cannot process a file. Input up to 50MB.
+- Built-in 200 animated examples in ten categories; file import does not require original input to be 32×32.
+- BLE connection and device commands retained; not verified on a physical device.
+- Stable application ID `com.pixelmatrix.studio.stable`, version 3.2.0 (3200).
+- Do not distribute as an in-place update to a differently signed / differently packaged earlier APK.

@@ -7,7 +7,7 @@ android {
         applicationId 'com.pixelmatrix.studio.stable'
         minSdk 26
         targetSdk 34
-        versionCode 32
+        versionCode 3200
         versionName '3.2.0'
     }
     compileOptions {
@@ -15,9 +15,6 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     buildTypes {
-        debug {
-            // Fixed package ID. Keep unchanged across future releases.
-        }
         release { minifyEnabled false }
     }
 }

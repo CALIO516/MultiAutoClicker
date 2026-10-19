@@ -74,3 +74,18 @@ jobs:
         with:
           name: PixelMatrixStudio-v3.2-APK
           path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Build clean-install companion package
+        run: |
+          gradle :app:assembleDebug -PcleanInstall=true --no-daemon
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/clean-badging.txt | head -n 12
+          grep -q "name='com.pixelmatrix.studio.stable.clean'" /tmp/clean-badging.txt
+          grep -q "versionName='3.2.0'" /tmp/clean-badging.txt
+          mkdir -p app/build/clean-install
+          cp "$APK" app/build/clean-install/PixelMatrixStudio-v3.2-Clean.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PixelMatrixStudio-v3.2-Clean-APK
+          path: pixelmatrix/app/build/clean-install/PixelMatrixStudio-v3.2-Clean.apk

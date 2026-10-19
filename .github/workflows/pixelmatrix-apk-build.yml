@@ -61,3 +61,17 @@ jobs:
         with:
           name: PixelMatrixStudio-v2.8-APK
           path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
+      - name: Build independently installable companion APK
+        run: gradle :app:assembleDebug -PsideBySide=true --no-daemon
+      - name: Verify companion package and signature
+        run: |
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/pixelmatrix_side_badging.txt | head -n 12
+          grep -q "name='com.pixelmatrix.studio.stable.carousel'" /tmp/pixelmatrix_side_badging.txt
+          mkdir -p app/build/side
+          cp "$APK" app/build/side/PixelMatrixStudio-v2.8-SideBySide.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PixelMatrixStudio-v2.8-SideBySide-APK
+          path: pixelmatrix/app/build/side/PixelMatrixStudio-v2.8-SideBySide.apk

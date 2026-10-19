@@ -15,6 +15,10 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     buildTypes {
+        debug {
+            // Optional parallel-install build preserves the existing stable app.
+            if (project.hasProperty('sideBySide')) applicationIdSuffix '.carousel'
+        }
         release { minifyEnabled false }
     }
 }

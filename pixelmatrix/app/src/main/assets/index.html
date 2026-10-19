@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=auto"><meta name="theme-color" content="#090b10">
-<title>PixelMatrix Studio 2.7 — LED 픽셀 스튜디오</title>
+<title>PixelMatrix Studio 2.6 — LED 픽셀 스튜디오</title>
 <style>
 :root{--bg:#0a0c13;--pane:#141824;--pane2:#1a2030;--line:#293247;--text:#eff2fb;--sub:#9aa8c1;--accent:#79e0c7;--gold:#ffd28f;--rad:17px;--shadow:0 18px 50px #0004;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 5%,#18263c 0,transparent 33%),radial-gradient(ellipse at 90% 0,#271d36 0,transparent 30%),var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,'Noto Sans KR',sans-serif;min-height:100vh}
@@ -319,11 +319,32 @@ html, body {max-width:100%; overflow-x:hidden}
 .galleryPreviewActions .primary{min-height:51px;font-size:14px}
 .galleryPreviewActions button[disabled]{opacity:.52}
 @media(max-width:700px){.galleryPreviewCard{max-height:min(92dvh,780px);overflow:auto}.galleryGrid{gap:10px}.galleryItem{min-height:155px}}
+
+/* Hardware carousel: safe compact mobile layout */
+.assetBox{margin:18px 0 12px;padding:14px;border:1px solid #3b4863;border-radius:15px;background:#151e30;display:grid;gap:12px}
+.assetBox h3{font-size:15px;margin:0;color:#ebedff}
+.assetHelp{font-size:11px;color:#a9b4cc;line-height:1.65;margin:0}
+.assetActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.assetActions button{min-width:0;padding:11px 6px;min-height:44px;font-size:12px;white-space:normal;word-break:keep-all}
+.galleryPreviewActions #galleryAddCarousel{grid-column:1/-1} 
+.assetSlotList{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.assetSlot{background:#0e1524;border:1px solid #34405d;border-radius:10px;min-width:0;padding:7px;display:flex;align-items:center;flex-direction:column;gap:6px}
+.assetSlot img{width:100%;max-width:76px;aspect-ratio:1;object-fit:contain;image-rendering:pixelated;background:#0a0d14;border-radius:6px}
+.assetSlot span{font-size:10px;line-height:1.3;overflow-wrap:anywhere;text-align:center;color:#cbd5ea;max-width:100%}
+.assetSlot button{font-size:11px;min-height:29px;padding:4px 7px;width:100%}
+.assetButtons{display:flex;gap:8px;flex-wrap:wrap}
+.assetButtons button{flex:1 1 110px;font-size:11px;min-height:40px}
+#assetStatus{color:#c9d7ff;min-height:34px;white-space:pre-line;overflow-wrap:anywhere;font-size:11px}
+#assetInterval{max-width:125px;min-height:42px;width:100%}
+.assetSlot.empty{border-style:dashed;justify-content:center;min-height:100px}
+.assetSlot.empty span{color:#7f8da8}
+@media(max-width:360px){.assetSlotList{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
 <div class="page">
-<header class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="12" y="3" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="3" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="12" y="12" width="6" height="6" rx="1" fill="#102b32"/><rect x="21" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="3" y="21" width="6" height="6" rx="1" fill="#102b32"/><rect x="12" y="21" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="21" width="6" height="6" rx="1" fill="#102b32"/></svg></div><div><h1>PIXELMATRIX <span class="brandSub">Studio</span> <span style="font-size:11px;vertical-align:middle;border-radius:999px;border:1px solid #7182a7;background:#253047;color:#c9e0ff;padding:3px 7px;letter-spacing:0" id="appVersionLabel">v2.7.0</span></h1><p>픽셀 아트 · GIF · LED 디스플레이</p></div><div class="quickConnect"><button id="topConnectBtn">⌁ 기기 연결</button></div></div><div class="topBtns"><button id="newBtn"><span class="topActionIcon">＋</span><span>새 작업</span></button><button id="gifTopBtn"><span class="topActionIcon">▦</span><span>GIF 변환</span></button><button id="openBtn"><span class="topActionIcon">↥</span><span>프로젝트<br>불러오기</span></button><button id="projectSaveBtn" class="primary"><span class="topActionIcon">✓</span><span>프로젝트<br>저장</span></button></div></header>
+<header class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="12" y="3" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="3" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="12" y="12" width="6" height="6" rx="1" fill="#102b32"/><rect x="21" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="3" y="21" width="6" height="6" rx="1" fill="#102b32"/><rect x="12" y="21" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="21" width="6" height="6" rx="1" fill="#102b32"/></svg></div><div><h1>PIXELMATRIX <span class="brandSub">Studio</span> <span style="font-size:11px;vertical-align:middle;border-radius:999px;border:1px solid #7182a7;background:#253047;color:#c9e0ff;padding:3px 7px;letter-spacing:0"><span id="appVersionText">v2.8</span></span></h1><p>픽셀 아트 · GIF · LED 디스플레이</p></div><div class="quickConnect"><button id="topConnectBtn">⌁ 기기 연결</button></div></div><div class="topBtns"><button id="newBtn"><span class="topActionIcon">＋</span><span>새 작업</span></button><button id="gifTopBtn"><span class="topActionIcon">▦</span><span>GIF 변환</span></button><button id="openBtn"><span class="topActionIcon">↥</span><span>프로젝트<br>불러오기</span></button><button id="projectSaveBtn" class="primary"><span class="topActionIcon">✓</span><span>프로젝트<br>저장</span></button></div></header>
 <nav class="mobileNav" aria-label="작업 메뉴"><button data-goto="scene" class="on" aria-label="픽셀 편집"><span class="navGlyph" aria-hidden="true">▦</span><span>편집</span></button><button data-goto="left" aria-label="그리기 도구"><span class="navGlyph" aria-hidden="true">✎</span><span>도구</span></button><button data-goto="right" aria-label="GIF와 샘플"><span class="navGlyph" aria-hidden="true">▣</span><span>GIF</span></button><button data-goto="device" aria-label="LED 기기"><span class="navGlyph" aria-hidden="true">⌁</span><span>기기</span></button></nav>
 <div class="work"><aside class="card left" id="left"><h2>도구 상자 <span class="badgeNum" id="sizeTag">32×32</span></h2><div class="toolbar" id="tools"><button class="tool on" data-tool="pen" title="그리기">✎<span>펜</span></button><button class="tool" data-tool="erase" title="지우개">⌫<span>지우기</span></button><button class="tool" data-tool="fill" title="영역 채우기">▨<span>채우기</span></button><button class="tool" data-tool="pick" title="색상 선택">◉<span>스포이트</span></button><button class="tool" data-tool="line" title="선">╱<span>직선</span></button><button class="tool" data-tool="rect" title="사각형">▢<span>사각형</span></button><button class="tool" data-tool="ellipse" title="원">◯<span>원</span></button><button class="tool" data-tool="spark" title="무작위 반짝임">✦<span>반짝임</span></button></div>
 <div class="field"><label for="color">현재 색상</label><div class="cflex"><input type="color" id="color" value="#ffcf94" aria-label="현재 색상"><input id="hexColor" class="fill" value="#FFCF94" maxlength="7" aria-label="16진수 색상"><button id="defaultPaletteBtn" title="팔레트 전환">⇄</button></div><div class="swatches" id="swatches"></div></div>
@@ -365,6 +386,22 @@ html, body {max-width:100%; overflow-x:hidden}
  <div class="deviceButtons"><button id="textMakeBtn">픽셀 텍스트 만들기</button><button class="primary" id="textSendBtn">만들고 LED 전송</button></div>
  <p class="note">안드로이드 글꼴을 그림으로 변환합니다. 흐르는 문구는 기기 내장 텍스트 기능이 아니라 GIF 형태로 보냅니다.</p></section>
 </div>
+
+<section class="assetBox" id="deviceAssetsPanel" aria-label="기기 저장 이미지와 자동 전환 관리">
+ <h3>기기 저장 이미지 · 자동 전환 <span class="badgeNum" id="assetCount">0 / 12</span></h3>
+ <p class="assetHelp">기기에는 최대 12개를 저장해 자동 재생할 수 있습니다. 이 화면의 목록은 <strong>이 앱에서 선택한 이미지와 마지막 전송 기록</strong>입니다. 기기에서 기존 이미지 파일을 읽어오는 기능은 확인되지 않았습니다.</p>
+ <div class="assetActions"><button class="primary" id="assetViewDevice">▶ 기기에 저장된 그림 재생</button><button id="assetRestoreLast">↺ 마지막 전송 목록 불러오기</button></div>
+ <div class="assetActions"><button id="assetAddEditor">＋ 현재 편집기 GIF 추가</button><button id="assetChooseFiles">＋ 휴대폰 GIF 추가</button></div>
+ <input id="assetFileInput" class="visuallyHidden" type="file" accept="image/gif,.gif" multiple>
+ <p class="assetHelp">샘플 라이브러리에서도 미리보기의 ‘자동 전환 목록에 추가’를 누를 수 있습니다. 순서 변경은 슬롯의 ▲▼ 버튼으로 합니다.</p>
+ <div class="assetSlotList" id="assetSlotList" aria-live="polite"></div>
+ <div class="flexWrap" style="justify-content:space-between;gap:10px"><label for="assetInterval">각 이미지 표시 시간 (초)</label><input type="number" id="assetInterval" min="1" max="300" step="1" value="10" inputmode="numeric"></div>
+ <div class="assetActions"><button class="primary" id="assetUpload">↑ 선택한 이미지 기기에 저장·자동 재생</button><button id="assetClear">목록 비우기 (휴대폰만)</button></div>
+ <div id="assetStatus" role="status" aria-live="polite">목록을 구성한 후 기기에 전송하세요.</div>
+ <p class="assetHelp"><strong>주의:</strong> ‘기기에 저장·자동 재생’을 선택하면 기존 기기 저장 슬롯 0~11이 교체될 수 있습니다. 전송하기 전에 확인 창이 열립니다. 위 ‘기기에 저장된 그림 재생’은 기존 콘텐츠를 삭제하지 않습니다.</p>
+ <p class="assetHelp" id="assetLastInfo">마지막 성공 전송 기록 없음</p>
+</section>
+
 <div class="gifStatus" id="deviceProgress" style="margin-top:10px">장치를 연결하면 직접 전송할 수 있습니다.</div>
 <p id="deviceHelp">제어 명령은 일부 16×16/32×32/64×64 제품에서 지원합니다. 기기에 따라 기능이 다를 수 있습니다. 실제 장치에서 동작을 확인해주세요.</p>
 </aside>
@@ -405,7 +442,7 @@ html, body {max-width:100%; overflow-x:hidden}
   <div class="galleryPreviewHead"><div><div id="galleryPreviewCategory" class="galleryPreviewCat"></div><h2 id="galleryPreviewTitle">샘플 미리보기</h2></div><button type="button" id="galleryPreviewClose" aria-label="미리보기 닫기">×</button></div>
   <div class="galleryPreviewScreen"><img id="galleryPreviewImage" alt="움직이는 픽셀 샘플"></div>
   <p class="galleryPreviewInfo">64 × 64 원화 · 8프레임 애니메이션. 기기 해상도를 선택하면 픽셀 모양을 유지해 변환합니다.</p>
-  <label class="galleryResolutionLabel" for="galleryResolution">편집·전송 해상도 <select id="galleryResolution"><option value="32" selected>32 × 32 LED</option><option value="64">64 × 64 LED</option><option value="16">16 × 16 LED</option></select></label><div id="galleryLoadStatus" role="status" aria-live="polite"></div><div class="galleryPreviewActions"><button class="primary" id="galleryApply">✓ 편집기로 가져오기</button><button id="galleryDownload">GIF 파일 저장</button><button id="gallerySend">LED 기기로 전송</button></div>
+  <label class="galleryResolutionLabel" for="galleryResolution">편집·전송 해상도 <select id="galleryResolution"><option value="32" selected>32 × 32 LED</option><option value="64">64 × 64 LED</option><option value="16">16 × 16 LED</option></select></label><div id="galleryLoadStatus" role="status" aria-live="polite"></div><div class="galleryPreviewActions"><button class="primary" id="galleryApply">✓ 편집기로 가져오기</button><button id="galleryAddCarousel">＋ 자동 전환 목록에 추가</button><button id="galleryDownload">GIF 파일 저장</button><button id="gallerySend">LED 기기로 전송</button></div>
  </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -784,7 +821,74 @@ function initGallery(){
  renderGallery();
 }
 
-function init(){const label=$('appVersionLabel');if(label){try{if(window.NativeApp&&typeof NativeApp.appVersion==='function')label.textContent='v'+NativeApp.appVersion();}catch(e){}}try{const saved=localStorage.getItem('pixel-lab-project-v1');if(saved)restore(JSON.parse(saved))}catch(e){/* Some file-origin browsers disable localStorage. */}renderPalette();wire();drawSamples();initGallery();syncUI();if(window.matchMedia('(max-width:700px)').matches){$('left').classList.add('isHiddenMobile');$('right').classList.add('isHiddenMobile');$('device').classList.add('isHiddenMobile')}window.addEventListener('beforeunload',()=>{try{localStorage.setItem('pixel-lab-project-v1',JSON.stringify(s))}catch(e){}})}
+
+// Persistent local album list. This is a record of our app's selections, not a device readback.
+const ASSET_DRAFT_KEY='pixelmatrix-carousel-v28', ASSET_LAST_KEY='pixelmatrix-carousel-last-v28';
+let assetQueue=[],assetUploading=false;
+const assetSave=()=>{try{localStorage.setItem(ASSET_DRAFT_KEY,JSON.stringify(assetQueue))}catch(e){$('assetStatus').textContent='휴대폰 저장 공간이 부족합니다. 전송 전에는 이 목록이 유지되지 않을 수 있습니다.'}};
+function assetLoad(){try{const v=JSON.parse(localStorage.getItem(ASSET_DRAFT_KEY)||'[]');if(Array.isArray(v))assetQueue=v.filter(x=>x&&['asset','user'].includes(x.kind)&&typeof x.name==='string').slice(0,12)}catch(e){assetQueue=[]}assetRender();}
+function assetPreviewSrc(entry){if(entry.kind==='asset')return 'gallery/'+entry.file;return 'data:image/gif;base64,'+entry.b64}
+function assetRender(){
+ const root=$('assetSlotList');root.replaceChildren();$('assetCount').textContent=assetQueue.length+' / 12';
+ for(let i=0;i<12;i++){
+  const box=document.createElement('div');box.className='assetSlot'+(i>=assetQueue.length?' empty':'');
+  if(i<assetQueue.length){
+   const entry=assetQueue[i],img=document.createElement('img');img.src=assetPreviewSrc(entry);img.alt=entry.name;box.append(img);
+   const label=document.createElement('span');label.textContent=(i+1)+'. '+entry.name;box.append(label);
+   const buttons=document.createElement('div');buttons.className='assetButtons';
+   for(const [symbol,action] of [['▲',()=>assetMove(i,-1)],['▼',()=>assetMove(i,1)],['×',()=>assetRemove(i)]]){
+    const button=document.createElement('button');button.textContent=symbol;button.disabled=assetUploading;button.onclick=action;buttons.append(button);
+   }box.append(buttons);
+  }else{const txt=document.createElement('span');txt.textContent='슬롯 '+(i+1)+' · 비어 있음';box.append(txt)}
+  root.append(box);
+ }
+}
+function assetMove(i,step){const j=i+step;if(assetUploading||j<0||j>=assetQueue.length)return;[assetQueue[i],assetQueue[j]]=[assetQueue[j],assetQueue[i]];assetSave();assetRender()}
+function assetRemove(i){if(assetUploading)return;assetQueue.splice(i,1);assetSave();assetRender()}
+function assetAdd(entry){if(assetUploading){toast('전송 중에는 목록을 수정할 수 없습니다.');return false}if(assetQueue.length>=12){toast('기기 저장 공간은 최대 12개입니다.');return false}assetQueue.push(entry);assetSave();assetRender();$('assetStatus').textContent=entry.name+' 추가 완료 ('+assetQueue.length+'/12)';return true}
+function blobAsB64(blob){return new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(String(fr.result).split(',')[1]||'');fr.onerror=()=>reject(Error('파일을 읽을 수 없습니다.'));fr.readAsDataURL(blob)})}
+async function assetAddEditor(){
+ try{if(!s.frames.length)throw Error('편집기에 이미지가 없습니다.');const data=gifEncode(s.frames,sz(),s.fps,s.delays);if(data.size>400000)throw Error('GIF가 너무 큽니다. 400KB 이하로 줄여 주세요.');const b64=await blobAsB64(data);assetAdd({kind:'user',name:s.name||'현재 편집기',b64});}
+ catch(e){toast('추가 실패: '+e.message)}
+}
+async function assetAddFiles(files){for(const file of [...files]){if(!/\.gif$/i.test(file.name)&&file.type!=='image/gif'){toast('GIF 파일만 추가할 수 있습니다.');continue}if(file.size>400000){toast(file.name+': 400KB를 초과합니다.');continue}try{const b64=await blobAsB64(file);if(!assetAdd({kind:'user',name:file.name.slice(0,55),b64}))break}catch(e){toast('GIF 추가 오류: '+e.message)}}$('assetFileInput').value=''}
+function assetAddGallery(){const item=gallerySelection;if(!item)return;if(assetAdd({kind:'asset',name:item.name,file:item.file})){closeGalleryPreview();toast(item.name+' · 자동 전환 목록에 추가됨')}}
+function assetLastInfo(){try{const info=JSON.parse(localStorage.getItem(ASSET_LAST_KEY)||'null');$('assetLastInfo').textContent=info?`이 앱에서 마지막 전송: ${info.date} · ${info.names.length}개 · ${info.interval}초 · ${info.verified?'기기 ACK 확인':'ACK 미확인'}`:'마지막 전송 기록 없음'}catch(e){$('assetLastInfo').textContent='기록을 불러올 수 없습니다.'}}
+function assetLoadLast(){try{const info=JSON.parse(localStorage.getItem(ASSET_LAST_KEY)||'null');if(!info||!info.items?.length){toast('이 앱의 마지막 전송 기록이 없습니다.');return}assetQueue=info.items.slice(0,12);$('assetInterval').value=info.interval;assetSave();assetRender();$('assetStatus').textContent='마지막 전송한 앱 기록을 불러왔습니다. (기기에서 조회한 목록은 아닙니다.)'}catch(e){toast('기록 복원 실패: '+e.message)}}
+function assetToggleBusy(busy){assetUploading=busy;['assetUpload','assetAddEditor','assetChooseFiles','assetClear','assetRestoreLast'].forEach(id=>$(id).disabled=busy);assetRender()}
+window.nativeCarouselEvent=(state,done,total,msg)=>{
+ $('assetStatus').textContent=msg+' ('+done+'/'+total+')';
+ if(state==='start')assetToggleBusy(true);
+ if(state==='complete'||state==='unconfirmed'||state==='error'){
+  assetToggleBusy(false);
+  if(state==='complete'||state==='unconfirmed'){
+   try{localStorage.setItem(ASSET_LAST_KEY,JSON.stringify({date:new Date().toLocaleString(),interval:+$('assetInterval').value,items:assetQueue,names:assetQueue.map(x=>x.name),verified:state==='complete'}))}catch(e){}
+   assetLastInfo();
+  }
+ }
+};
+async function assetUpload(){
+ if(!window.NativeApp?.carouselUpload){toast('Android v2.8 앱에서만 지원합니다.');return}
+ if(!nativeConnected){toast('LED 기기에 먼저 연결하세요.');return}
+ if(assetUploading)return;
+ if(!assetQueue.length){toast('먼저 이미지나 GIF를 추가하세요.');return}
+ const sec=Number($('assetInterval').value);
+ if(!Number.isInteger(sec)||sec<1||sec>300){toast('표시 시간은 1~300초 사이입니다.');return}
+ const encoded=assetQueue.map(x=>x.kind==='asset'?{kind:'asset',name:x.name,file:x.file}:{kind:'user',name:x.name,b64:x.b64});
+ if(JSON.stringify(encoded).length>3200000){toast('전송할 파일의 총 크기가 너무 큽니다.');return}
+ const ok=await confirmModal('기기에 저장된 12개 슬롯을 교체합니다',`현재 기기에 저장된 이미지가 지워지거나 교체될 수 있습니다. ${encoded.length}개를 각각 ${sec}초 동안 반복 재생하도록 전송할까요?`);
+ if(!ok)return;
+ $('assetStatus').textContent='기기로 전송을 시작합니다…';assetToggleBusy(true);
+ try{NativeApp.carouselUpload(JSON.stringify(encoded),sec)}catch(e){assetToggleBusy(false);$('assetStatus').textContent='전송 요청 실패: '+e.message}
+}
+function assetBrowseDevice(){
+ if(!nativeConnected){toast('먼저 LED 기기에 연결하세요.');return}
+ if(window.NativeApp?.showStoredAssets){NativeApp.showStoredAssets();$('assetStatus').textContent='기기 저장 이미지 재생 모드 요청. 실제 이미지 목록의 다운로드는 지원되지 않습니다.'}
+ else toast('이 기능은 새 Android APK가 필요합니다.');
+}
+function assetInit(){assetLoad();assetLastInfo();$('assetViewDevice').onclick=assetBrowseDevice;$('assetRestoreLast').onclick=assetLoadLast;$('assetAddEditor').onclick=assetAddEditor;$('assetChooseFiles').onclick=()=>$('assetFileInput').click();$('assetFileInput').onchange=e=>assetAddFiles(e.target.files);$('assetUpload').onclick=assetUpload;$('assetClear').onclick=async()=>{if(assetUploading)return;if(await confirmModal('휴대폰 목록만 비우기','앱에 준비해둔 자동 전환 목록을 지웁니다. 기기에 저장된 이미지는 건드리지 않습니다.')){assetQueue=[];assetSave();assetRender()}};$('galleryAddCarousel').onclick=assetAddGallery;}
+
+function init(){try{const saved=localStorage.getItem('pixel-lab-project-v1');if(saved)restore(JSON.parse(saved))}catch(e){/* Some file-origin browsers disable localStorage. */}renderPalette();wire();drawSamples();initGallery();assetInit();syncUI();if(window.NativeApp?.appVersion){$('appVersionText').textContent='v'+NativeApp.appVersion()}if(window.matchMedia('(max-width:700px)').matches){$('left').classList.add('isHiddenMobile');$('right').classList.add('isHiddenMobile');$('device').classList.add('isHiddenMobile')}window.addEventListener('beforeunload',()=>{try{localStorage.setItem('pixel-lab-project-v1',JSON.stringify(s))}catch(e){}})}
 init();
 })();
 </script>

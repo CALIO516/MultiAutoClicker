@@ -64,6 +64,7 @@ public class MainActivity extends Activity {
     private final Handler ui = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final ArrayBlockingQueue<Integer> acks = new ArrayBlockingQueue<>(16);
+    private final ArrayBlockingQueue<Integer> carouselAcks = new ArrayBlockingQueue<>(64);
     private final Map<String, BluetoothDevice> found = Collections.synchronizedMap(new LinkedHashMap<>());
     private WebView web;
     private BluetoothAdapter adapter;
@@ -249,7 +250,7 @@ public class MainActivity extends Activity {
         cancelled=true;
         stopScan();
         connected=false;notifyReady=false;tx=null;mtuSize=23;
-        acks.clear();writeResults.clear();
+        acks.clear();carouselAcks.clear();writeResults.clear();
         BluetoothGatt previous=gatt;
         gatt=null;
         if(previous!=null){try{previous.disconnect();previous.close();}catch(Exception ignored){}}
@@ -316,6 +317,7 @@ public class MainActivity extends Activity {
             if(val[2]==1||val[2]==2||val[2]==3){
                 acks.offer(val[4]&255);
             }
+            carouselAcks.offer(((val[2]&255)<<16)|((val[3]&255)<<8)|(val[4]&255));
         }
     };
     private void sendRaw(byte[] bytes) throws Exception{
@@ -385,15 +387,119 @@ public class MainActivity extends Activity {
             finally{sending=false;}
         });
     }
+
+    // Device-assets carousel, reverse engineered: 12 persistent slots (0..11),
+    // device-managed dwell encoded in little-endian header bytes 13..14.
+    private void carouselNotify(String state,int done,int total,String message){js("nativeCarouselEvent",state,done,total,message);}
+    private byte[] readGalleryAsset(String file) throws Exception {
+        if(file==null||!file.matches("v22/pixel_[0-9]{3}\\.gif"))throw new Exception("잘못된 내장 파일 경로");
+        try(InputStream in=getAssets().open("gallery/"+file);ByteArrayOutputStream out=new ByteArrayOutputStream()){
+            byte[] buf=new byte[8192];int n;while((n=in.read(buf))>=0){if(n==0)continue;out.write(buf,0,n);if(out.size()>500000)throw new Exception("이미지가 너무 큽니다 (500KB 초과)");}return out.toByteArray();
+        }
+    }
+    private void carouselTransfer(byte[] payload,int slot,int seconds) throws Exception {
+        if(payload.length<16||payload.length>500000||payload[0]!='G'||payload[1]!='I'||payload[2]!='F')throw new Exception("GIF 형식 또는 크기가 맞지 않습니다");
+        CRC32 crc=new CRC32();crc.update(payload);
+        int blocks=(payload.length+4095)/4096;
+        int crc32=(int)crc.getValue();
+        for(int part=0;part<blocks;part++){
+            if(!connected||cancelled)throw new Exception("BLE 연결이 끊겼습니다.");
+            int offset=part*4096;
+            int n=Math.min(4096,payload.length-offset);
+            byte[] packet=new byte[n+16];
+            packet[0]=(byte)(packet.length&255);packet[1]=(byte)(packet.length>>8);
+            packet[2]=1;packet[3]=0;packet[4]=(byte)(part==0?0:2);
+            put32(packet,5,payload.length);put32(packet,9,crc32);
+            packet[13]=(byte)(seconds&255);packet[14]=(byte)(seconds>>8);packet[15]=(byte)slot;
+            System.arraycopy(payload,offset,packet,16,n);
+            carouselAcks.clear();
+            int step=Math.max(20,Math.min(244,mtuSize-3));
+            for(int i=0;i<packet.length;i+=step)sendRaw(Arrays.copyOfRange(packet,i,Math.min(packet.length,i+step)));
+            if(notifyReady){
+                boolean got=false;long until=System.currentTimeMillis()+7000;
+                while(System.currentTimeMillis()<until){
+                    Integer resp=carouselAcks.poll(500,TimeUnit.MILLISECONDS);
+                    if(resp==null)continue;
+                    int command=(resp>>16)&255,sub=(resp>>8)&255,code=resp&255;
+                    if(command!=1||sub!=0)continue;
+                    if(code==2)throw new Exception("기기 저장 공간 또는 전송 오류 (ACK 2)");
+                    if(code==1||code==3){got=true;break;}
+                }
+                if(!got)throw new Exception("기기 응답 시간 초과 · 저장 성공을 확인할 수 없습니다");
+            }else{
+                Thread.sleep(480);
+                carouselAckUnconfirmed=true;
+            }
+        }
+    }
+    private volatile boolean carouselAckUnconfirmed=false;
+    private void sendCarousel(String json,int seconds){
+        if(!connected){carouselNotify("error",0,0,"기기를 먼저 연결하세요.");return;}
+        if(sending){carouselNotify("error",0,0,"다른 전송이 진행 중입니다.");return;}
+        if(seconds<1||seconds>300){carouselNotify("error",0,0,"표시 시간은 1~300초입니다.");return;}
+        final ArrayList<byte[]> images=new ArrayList<>();
+        try{
+            JSONArray items=new JSONArray(json);
+            if(items.length()<1||items.length()>12)throw new Exception("최대 12개의 이미지를 선택하세요.");
+            int totalBytes=0;
+            for(int i=0;i<items.length();i++){
+                JSONObject item=items.getJSONObject(i);
+                String kind=item.optString("kind","");
+                byte[] data;
+                if("asset".equals(kind))data=readGalleryAsset(item.optString("file",""));
+                else if("user".equals(kind)){
+                    String str=item.optString("b64","");
+                    if(str.length()>700000)throw new Exception("파일이 너무 큽니다.");
+                    data=Base64.decode(str,Base64.DEFAULT);
+                }else throw new Exception("지원되지 않는 항목");
+                if(data.length>500000||data.length<16||data[0]!='G'||data[1]!='I'||data[2]!='F')throw new Exception("GIF 데이터가 올바르지 않습니다: "+(i+1));
+                totalBytes+=data.length;
+                if(totalBytes>2500000)throw new Exception("총 2.5MB를 초과합니다. 이미지를 줄여 주세요.");
+                images.add(data);
+            }
+        }catch(Exception e){carouselNotify("error",0,0,"전송 시작 전 검사 실패: "+e.getMessage());return;}
+        sending=true;
+        io.execute(()->{
+            carouselAckUnconfirmed=false;int current=0;
+            try{
+                carouselNotify("start",0,images.size(),"기기 저장 슬롯 교체 시작");
+                // Switch to Assets mode, then explicitly replace the 12-slot bank.
+                sendRaw(new byte[]{4,0,10,1});Thread.sleep(130);
+                carouselAcks.clear();
+                byte[] setup=new byte[17];setup[0]=17;setup[1]=0;setup[2]=2;setup[3]=1;setup[4]=12;
+                for(int i=0;i<12;i++)setup[5+i]=(byte)i;
+                sendRaw(setup);Thread.sleep(220);
+                for(int i=0;i<images.size();i++){
+                    carouselNotify("progress",i,images.size(),"이미지 "+(i+1)+" / "+images.size()+" 기기에 저장 중");
+                    carouselTransfer(images.get(i),i,seconds);
+                    current=i+1;
+                    carouselNotify("progress",current,images.size(),"슬롯 "+current+" 전송 완료");
+                }
+                // Carousel view is hardware-driven: it continues after phone disconnect.
+                sendRaw(new byte[]{4,0,10,1});
+                carouselNotify(carouselAckUnconfirmed?"unconfirmed":"complete",images.size(),images.size(),
+                    carouselAckUnconfirmed?"전송 요청 완료 · 응답을 확인하지 못한 슬롯이 있습니다. LED를 확인하세요.":"기기 전송 ACK 수신 · 자동 전환을 요청했습니다. LED 표시를 확인하세요.");
+            }catch(Exception e){carouselNotify("error",current,images.size(),"전송 실패 ("+current+"/"+images.size()+"): "+e.getMessage()+" · 이전 슬롯 일부가 지워졌을 수 있습니다.");}
+            finally{sending=false;}
+        });
+    }
+    private void enterStoredAssets(){
+        if(!connected){log("먼저 LED에 연결하세요.");return;}
+        io.execute(()->{
+            if(sending){log("전송 완료 후 저장 이미지 보기를 실행하세요.");return;}
+            try{sendRaw(new byte[]{4,0,10,1});log("기기 저장 이미지 재생 모드 요청 완료 (파일 읽기 기능 아님)");}
+            catch(Exception e){log("저장 이미지 보기 실패: "+e.getMessage());}
+        });
+    }
+
     private static int clamp(int n,int min,int max){return Math.max(min,Math.min(max,n));}
     private static void put32(byte[] arr,int index,int number){
         for(int i=0;i<4;i++)arr[index+i]=(byte)((number>>(i*8))&255);
     }
     public final class Bridge {
-        @JavascriptInterface public String appVersion(){
-            try {return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}
-            catch(Exception e){return "2.7.0";}
-        }
+        @JavascriptInterface public String appVersion(){return "2.8.0";}
+        @JavascriptInterface public void showStoredAssets(){enterStoredAssets();}
+        @JavascriptInterface public void carouselUpload(String itemJson,int dwellSeconds){sendCarousel(itemJson,dwellSeconds);}
         @JavascriptInterface public void connect(){ui.post(()->requestBle());}
         @JavascriptInterface public void disconnect(){ui.post(()->MainActivity.this.disconnect());}
         @JavascriptInterface public void reconnect(){ui.post(()->reconnectLast());}

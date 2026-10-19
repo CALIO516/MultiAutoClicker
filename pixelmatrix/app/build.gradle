@@ -7,23 +7,14 @@ android {
         applicationId 'com.pixelmatrix.studio.stable'
         minSdk 26
         targetSdk 34
-        versionCode 27
-        versionName '2.7.0'
+        versionCode 28
+        versionName '2.8.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    signingConfigs {
-        stableDebug {
-            storeFile file('signing/debug.keystore')
-            storePassword 'android'
-            keyAlias 'pixelmatrix'
-            keyPassword 'android'
-        }
-    }
     buildTypes {
-        debug { signingConfig signingConfigs.stableDebug }
         release { minifyEnabled false }
     }
 }

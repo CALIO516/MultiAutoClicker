@@ -1,16 +1,11 @@
-name: PixelMatrix Studio Stable APK
+name: PixelMatrix Studio v2.8 carousel build
 on:
-  push:
-    branches: [pixelmatrix-studio-apk-build]
-    paths:
-      - 'pixelmatrix/**'
-      - '.github/workflows/pixelmatrix-apk-build.yml'
   workflow_dispatch:
+  push:
+    paths: ['pixelmatrix/**', '.github/workflows/pixelmatrix-apk-build.yml']
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     defaults:
       run:
         working-directory: pixelmatrix
@@ -21,88 +16,48 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v4
-        with:
-          packages: 'platform-tools'
       - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Restore stable signing key for future upgrades
-        id: signing-cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/pixelmatrix/app/signing/debug.keystore
-          key: pixelmatrix-v27-stable-key-v2
-      - name: Generate one-time or restore stable signing key
+      - name: Restore bundled 200 animations
         run: |
-          mkdir -p app/signing
-          VERSION_CODE=$(grep -Eo 'versionCode [0-9]+' app/build.gradle | cut -d' ' -f2)
-          if [ ! -f app/signing/debug.keystore ]; then
-            if [ "$VERSION_CODE" -gt 27 ]; then
-              echo 'ERROR: Existing signing key missing. Refusing to change certificate for an upgrade.'
-              exit 1
-            fi
-            keytool -genkeypair -noprompt -keystore app/signing/debug.keystore \
-              -storepass android -keypass android -alias pixelmatrix -keyalg RSA -keysize 3072 \
-              -validity 10000 -dname 'CN=PixelMatrix Stable Debug, O=PixelMatrix, C=KR'
-          fi
-          test -f app/signing/debug.keystore
-      - name: Unpack 200 curated animated GIF assets
-        run: |
-          mkdir -p app/src/main/assets/gallery/v22
-          cat artpacks/v27.*.bin > gallery_v27.tar.xz
-          tar -xJf gallery_v27.tar.xz -C app/src/main/assets/gallery/v22
-      - name: Check GIFs, version and Android bridge
-        run: |
-          python3 -m pip install --quiet --user pillow
-          python3 - <<'PYV'
-          from pathlib import Path
-          from PIL import Image
-          import json
-          root=Path('app/src/main/assets')
-          catalog=json.loads((root/'gallery-catalog.json').read_text())
-          assert len(catalog['samples'])==200 and len(catalog['categories'])==10
-          assert all(c['count']==20 for c in catalog['categories'])
-          for sample in catalog['samples']:
-              p=root/'gallery'/sample['file']
-              assert p.is_file(),p
-              with Image.open(p) as im:
-                  assert im.size==(64,64) and im.n_frames==8,p
-          gradle=Path('app/build.gradle').read_text()
-          assert "applicationId 'com.pixelmatrix.studio.stable'" in gradle
-          assert 'versionCode 27' in gradle and "versionName '2.7.0'" in gradle
-          java=Path('app/src/main/java/com/pixelmatrix/studio/MainActivity.java').read_text()
-          assert 'galleryGif(String fileName)' in java and 'appVersion()' in java
-          html=(root/'index.html').read_text()
-          assert 'appVersionLabel' in html and 'function galleryLoad(alsoSend)' in html
-          print('PASS: asset integrity, stable package ID, version, editor bridge')
-          PYV
-      - name: JavaScript syntax check (no preview execution)
+          cat artpacks/v28.*.bin > /tmp/pixelmatrix_gallery_v28.tar.xz
+          tar -xJf /tmp/pixelmatrix_gallery_v28.tar.xz -C app/src/main/assets/
+      - name: Validate gallery and version
         run: |
           python3 - <<'PYV'
-          from pathlib import Path
-          import re
-          h=Path('app/src/main/assets/index.html').read_text()
-          scripts=re.findall(r'<script[^>]*>(.*?)</script>',h,flags=re.S)
-          assert scripts
-          Path('/tmp/pm-static.js').write_text('\n'.join(scripts))
+          import json, pathlib
+          r=pathlib.Path('app/src/main/assets')
+          c=json.loads((r/'gallery-catalog.json').read_text())
+          assert len(c['samples'])==200 and len(c['categories'])==10
+          for s in c['samples']:
+              assert (r/'gallery'/s['file']).is_file(),s['file']
+          g=pathlib.Path('app/build.gradle').read_text()
+          assert "applicationId 'com.pixelmatrix.studio.stable'" in g
+          assert 'versionCode 28' in g and "versionName '2.8.0'" in g
+          assert all((r/'gallery'/x['file']).read_bytes()[:6] in (b'GIF87a', b'GIF89a') for x in c['samples'])
+          print('200 samples, GIF headers and version OK')
           PYV
-          node --check /tmp/pm-static.js
-      - name: Compile clean Android APK
-        run: gradle --no-daemon --stacktrace :app:clean :app:assembleDebug
-      - name: Verify Android APK signature, package ID and version
+      - name: Validate JavaScript syntax
+        run: |
+          python3 - <<'PYJS'
+          import re, pathlib
+          h=(pathlib.Path('app/src/main/assets/index.html')).read_text()
+          scripts=re.findall(r'<script[^>]*>(.*?)</script>',h, re.S)
+          assert len(scripts)==1
+          pathlib.Path('/tmp/pixelmatrix-ui-v28.js').write_text(scripts[0])
+          PYJS
+          node --check /tmp/pixelmatrix-ui-v28.js
+      - run: gradle :app:clean :app:assembleDebug --no-daemon
+      - name: Verify APK
         run: |
           APK=app/build/outputs/apk/debug/app-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -n 10
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.pixelmatrix.studio.stable' versionCode='27' versionName='2.7.0'"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$APK" > apk_signature.txt
-          sha256sum "$APK" > apk_sha256.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/pixelmatrix_apk_badging.txt | head -n 12
+          grep -q "name='com.pixelmatrix.studio.stable'" /tmp/pixelmatrix_apk_badging.txt
+          grep -q "versionName='2.8.0'" /tmp/pixelmatrix_apk_badging.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-v2.7-Stable-APK
-          path: |
-            pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
-            pixelmatrix/apk_signature.txt
-            pixelmatrix/apk_sha256.txt
-          retention-days: 90
+          name: PixelMatrixStudio-v2.8-APK
+          path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk

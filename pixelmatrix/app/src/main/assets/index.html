@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=auto"><meta name="theme-color" content="#090b10">
-<title>PixelMatrix Studio 2.6 — LED 픽셀 스튜디오</title>
+<title>PixelMatrix Studio 3.2 — LED 픽셀 스튜디오</title>
 <style>
 :root{--bg:#0a0c13;--pane:#141824;--pane2:#1a2030;--line:#293247;--text:#eff2fb;--sub:#9aa8c1;--accent:#79e0c7;--gold:#ffd28f;--rad:17px;--shadow:0 18px 50px #0004;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 5%,#18263c 0,transparent 33%),radial-gradient(ellipse at 90% 0,#271d36 0,transparent 30%),var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,'Noto Sans KR',sans-serif;min-height:100vh}
@@ -443,7 +443,7 @@ html, body {max-width:100%; overflow-x:hidden}
 <label>검은색 기준<select id="gifDark"><option value="0" selected>어두운 색도 유지</option><option value="12">12 이하 끄기</option><option value="24">24 이하 끄기</option></select></label>
 </div>
 <label class="gifCheck"><input id="gifDither" type="checkbox"> 색상 디더링 (색 혼합 효과)</label>
-<div class="gifStatus" id="gifStatus" role="status" aria-live="polite">일반 GIF 파일을 선택하면 애니메이션 전체가 LED 해상도로 변환됩니다.</div>
+<div class="gifStatus" id="gifStatus" role="status" aria-live="polite">GIF 파일을 불러오면 비율·색상·속도를 조정하여 16/32/64픽셀용으로 변환합니다.</div>
 <p class="note" style="margin:8px 0 0">모든 과정은 기기 안에서 오프라인 처리합니다. 원본 프레임 수가 많으면 선택한 최대 개수로 균등하게 압축됩니다. 파일을 캔버스에 끌어다 놓아도 됩니다.</p>
 </div>
 <details class="legacySamples"><summary>기존 기본 샘플 보기 (24종)</summary><h2>기본 픽셀 샘플</h2><p class="rightDesc">샘플을 터치하면 현재 프레임에 적용합니다. 교체 전에 자동으로 취소 이력을 남깁니다.</p><div class="presetTabs"><button class="on" data-tab="still">픽셀 아트</button><button data-tab="motion">움직이는 샘플</button></div><div class="sampleGrid" id="sampleGrid"></div></details><hr class="divider"><h2>사진 → 픽셀 아트</h2><input id="imgFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" class="visuallyHidden"><button id="imageBtn" style="width:100%">⬆ 사진·이미지 가져오기</button><div class="field"><label for="fitMode">화면 채우기 방식</label><select id="fitMode" style="width:100%"><option value="contain">전체 이미지 맞춤</option><option value="cover">화면 가득 채우기</option></select></div><p class="note">사진을 픽셀 해상도로 축소합니다. 일반 GIF는 자동으로 위의 애니메이션 변환 기능으로 열립니다.</p><hr class="divider"><h2>파일 내보내기</h2><div class="actions"><button id="pngBigBtn">PNG 8배 확대</button><button id="pngRawBtn">원본 PNG</button><button id="saveGifBtn">움직이는 GIF</button><button id="saveJsonBtn">작업 프로젝트</button></div><div class="tip"><strong>오프라인 사용</strong><div style="margin-top:3px">이 HTML 파일만 있으면 인터넷 없이 편집과 PNG/GIF 저장이 가능합니다. 작업 내용은 브라우저에 자동 저장을 시도하지만, 파일을 옮기거나 브라우저 데이터를 지우면 사라질 수 있으므로 프로젝트 파일도 함께 보관하세요.</div></div><div class="tip"><strong>원본 앱으로 보내기</strong><div style="margin-top:3px">PNG 또는 GIF로 저장한 후 공식 iDotMatrix 앱의 DIY·이미지 가져오기에서 불러오면 됩니다. 블루투스 실험 기능이 실패해도 이 방법으로 사용할 수 있습니다.</div></div><p style="font-size:11px;color:#6e809c;margin:15px 0 0">Pixel Lab — 비공식 독립 편집기 · iDotMatrix와 무관</p></aside></div>
@@ -876,10 +876,33 @@ function assetRemove(i){if(assetUploading)return;assetQueue.splice(i,1);assetSav
 function assetAdd(entry){if(assetUploading){toast('전송 중에는 목록을 수정할 수 없습니다.');return false}if(assetQueue.length>=12){toast('기기 저장 공간은 최대 12개입니다.');return false}assetQueue.push(entry);assetSave();assetRender();$('assetStatus').textContent=entry.name+' 추가 완료 ('+assetQueue.length+'/12)';return true}
 function blobAsB64(blob){return new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(String(fr.result).split(',')[1]||'');fr.onerror=()=>reject(Error('파일을 읽을 수 없습니다.'));fr.readAsDataURL(blob)})}
 async function assetAddEditor(){
- try{if(!s.frames.length)throw Error('편집기에 이미지가 없습니다.');const data=gifEncode(s.frames,sz(),s.fps,s.delays);if(data.size>400000)throw Error('GIF가 너무 큽니다. 400KB 이하로 줄여 주세요.');const b64=await blobAsB64(data);assetAdd({kind:'user',name:s.name||'현재 편집기',b64});}
+ try{if(editMode)throw Error('편집 저장 후 라이브러리에 추가해 주세요.');if(!s.frames.length)throw Error('편집기에 이미지가 없습니다.');const data=gifEncode(s.frames,sz(),s.fps,s.delays);if(data.size>400000)throw Error('GIF가 너무 큽니다. 400KB 이하로 줄여 주세요.');const b64=await blobAsB64(data);assetAdd({kind:'user',name:s.name||'현재 편집기',b64});}
  catch(e){toast('추가 실패: '+e.message)}
 }
-async function assetAddFiles(files){for(const file of [...files]){if(!/\.gif$/i.test(file.name)&&file.type!=='image/gif'){toast('GIF 파일만 추가할 수 있습니다.');continue}if(file.size>400000){toast(file.name+': 400KB를 초과합니다.');continue}try{const b64=await blobAsB64(file);if(!assetAdd({kind:'user',name:file.name.slice(0,55),b64}))break}catch(e){toast('GIF 추가 오류: '+e.message)}}$('assetFileInput').value=''}
+async function assetAddFiles(files){
+ const arr=[...files];if(!arr.length)return;
+ const field=$('assetStatus');
+ for(const file of arr){
+  if(!/\.gif$/i.test(file.name)&&file.type!=='image/gif'){field.textContent=file.name+' · GIF 파일이 아닙니다.';continue}
+  if(file.size>60*1024*1024){field.textContent=file.name+' · 60MB 초과';continue}
+  if(assetQueue.length>=12){field.textContent='기기 보관 목록은 12개까지 사용할 수 있습니다.';break}
+  try{
+   field.textContent=file.name+' · 일반 GIF 분석 중…';
+   const bytes=new Uint8Array(await file.arrayBuffer());
+   const parsed=parseGIF(bytes);
+   const mkOptions=limit=>({target:32,fit:'contain',colors:64,smooth:true,speed:1,limit,brightness:1,dark:0,dither:false});
+   const convert=async limit=>convertGIFFrames(parsed,mkOptions(limit),(done,total)=>{field.textContent=file.name+' · 32×32 변환 '+done+'/'+total});
+   let converted=await convert(60);
+   let blob=gifEncode(converted.result,32,0,converted.delays);
+   if(blob.size>400000){converted=await convert(30);blob=gifEncode(converted.result,32,0,converted.delays)}
+   if(blob.size>400000)throw Error('변환 결과가 400KB를 넘었습니다. 원본을 짧게 만들어 주세요.');
+   const entry={kind:'user',name:file.name.replace(/\.gif$/i,'').slice(0,54),b64:await blobAsB64(blob)};
+   if(!assetAdd(entry))break;
+   field.textContent='✓ '+file.name+' · '+parsed.width+'×'+parsed.height+' / '+parsed.frames.length+'프레임 → 32×32 / '+converted.result.length+'프레임 자동 등록';
+  }catch(e){field.textContent='등록 실패 · '+file.name+' · '+(e.message||e);toast('GIF 변환 실패: '+(e.message||e))}
+ }
+ $('assetFileInput').value='';
+}
 function assetAddGallery(){const item=gallerySelection;if(!item)return;if(assetAdd({kind:'asset',name:item.name,file:item.file})){closeGalleryPreview();toast(item.name+' · 자동 전환 목록에 추가됨')}}
 function assetLastInfo(){try{const info=JSON.parse(localStorage.getItem(ASSET_LAST_KEY)||'null');$('assetLastInfo').textContent=info?`이 앱에서 마지막 전송: ${info.date} · ${info.names.length}개 · ${info.interval}초 · ${info.verified?'기기 ACK 확인':'ACK 미확인'}`:'마지막 전송 기록 없음'}catch(e){$('assetLastInfo').textContent='기록을 불러올 수 없습니다.'}}
 function assetLoadLast(){try{const info=JSON.parse(localStorage.getItem(ASSET_LAST_KEY)||'null');if(!info||!info.items?.length){toast('이 앱의 마지막 전송 기록이 없습니다.');return}assetQueue=info.items.slice(0,12);$('assetInterval').value=info.interval;assetSave();assetRender();$('assetStatus').textContent='마지막 전송한 앱 기록을 불러왔습니다. (기기에서 조회한 목록은 아닙니다.)'}catch(e){toast('기록 복원 실패: '+e.message)}}

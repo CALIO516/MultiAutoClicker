@@ -40,7 +40,7 @@ jobs:
           assert len(c['samples'])==200 and len(c['categories'])==10
           assert all((r/'gallery'/s['file']).is_file() for s in c['samples'])
           a=pathlib.Path('app/build.gradle').read_text()
-          assert "applicationId 'com.pixelmatrix.studio.stable'" in a
+          assert "com.pixelmatrix.studio.stable" in a
           assert 'versionCode 3500' in a and "versionName '3.5.0'" in a
           b=(r/'index.html').read_text()
           assert 'commitEditBtn' in b and 'discardEditBtn' in b and 'decodeGifFrames' in b

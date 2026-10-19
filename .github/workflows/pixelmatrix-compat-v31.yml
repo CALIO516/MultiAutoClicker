@@ -1,0 +1,40 @@
+name: PixelMatrix Studio v3.5 unsigned v3.1 update
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'pixelmatrix/**'
+      - '.github/workflows/pixelmatrix-compat-v31.yml'
+jobs:
+  unsigned:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pixelmatrix
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Restore samples
+        run: |
+          cat artpacks/v28.*.bin > /tmp/pixelmatrix-gifs.tar.xz
+          tar -xJf /tmp/pixelmatrix-gifs.tar.xz -C app/src/main/assets/
+      - name: Compile compatible unsigned APK
+        run: gradle :app:clean :app:assembleRelease -Pcompat31=true --no-daemon --stacktrace
+      - name: Verify package and version
+        run: |
+          APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/pixelmatrix-compat-badging.txt
+          grep -q "name='com.pixelmatrix.studio.moti31'" /tmp/pixelmatrix-compat-badging.txt
+          grep -q "versionName='3.5.0'" /tmp/pixelmatrix-compat-badging.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PixelMatrixStudio-v3.5-v31-unsigned
+          path: pixelmatrix/app/build/outputs/apk/release/app-release-unsigned.apk

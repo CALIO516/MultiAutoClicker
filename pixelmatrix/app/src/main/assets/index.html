@@ -840,6 +840,38 @@ function gifLibraryDb(){return new Promise((resolve,reject)=>{
  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('samples'))req.result.createObjectStore('samples',{keyPath:'id'})};
  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||Error('라이브러리를 열 수 없습니다.'));
 })}
+async function readLegacyV31Items(){
+ // v3.1 used another IndexedDB name and a localStorage backup. Read-only migration.
+ let rows=[];
+ try{
+  if(window.indexedDB){
+   const db=await new Promise((resolve,reject)=>{
+    const req=indexedDB.open('pixelmatrix-user-gallery-v1',1);
+    req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('samples'))req.result.createObjectStore('samples',{keyPath:'id'})};
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||Error('v3.1 라이브러리를 열 수 없습니다.'));
+   });
+   rows=await new Promise((resolve,reject)=>{
+    const req=db.transaction('samples','readonly').objectStore('samples').getAll();
+    req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error||Error('v3.1 GIF 읽기 실패'));
+   });db.close();
+  }
+ }catch(e){/* Keep existing v3.1 DB untouched; use backup if present. */}
+ try{
+  const backup=JSON.parse(localStorage.getItem('pixelmatrix-user-gallery-backup-v1')||'[]');
+  if(Array.isArray(backup)){
+   const ids=new Set(rows.map(x=>x.id));
+   for(const r of backup){if(!ids.has(r.id)){rows.push(r);ids.add(r.id)}}
+  }
+ }catch(e){}
+ return rows.filter(x=>x&&typeof x.gifBase64==='string'&&x.gifBase64.length>20).slice(0,250);
+}
+function normalizeV31Gif(item,index){
+ let h=2166136261>>>0;const raw=String(item.id||item.name||'gif'+index);
+ for(let i=0;i<raw.length;i++)h=Math.imul(h^raw.charCodeAt(i),16777619)>>>0;
+ return {id:'user_'+String(1000000000000+(h>>>0))+'_legacy',time:1690000000000+index,
+  name:String(item.name||'내 GIF').slice(0,70),category:'my',categoryName:'내 GIF',frames:Math.max(1,Math.min(120,Number(item.frames)||8)),
+  durationMs:960,resolution:'32x32',file:'',b64:item.gifBase64,custom:true};
+}
 async function loadMyGallery(){
  let rows=[],nativeProblem=null,dbProblem=null;
  if(window.NativeApp&&NativeApp.loadLibraryItems){
@@ -853,8 +885,20 @@ async function loadMyGallery(){
   });db.close();
   const saved=new Map(fromIdb.map(x=>[x.id,x]));for(const item of rows)saved.set(item.id,item);rows=[...saved.values()];
  }catch(e){dbProblem=e;}
+ const saved=new Map(rows.map(x=>[x.id,x]));
+ const old=await readLegacyV31Items();let migrated=0;
+ for(let i=0;i<old.length;i++){
+  const item=normalizeV31Gif(old[i],i);
+  if(saved.has(item.id))continue;
+  saved.set(item.id,item);migrated++;
+  if(window.NativeApp&&NativeApp.saveLibraryItem){
+   try{NativeApp.saveLibraryItem(JSON.stringify(item));}catch(e){}
+  }
+ }
+ rows=[...saved.values()];
  if(!rows.length&&nativeProblem&&dbProblem)throw Error('기기 저장 '+nativeProblem.message+' / WebView 저장 '+dbProblem.message);
  myGalleryItems=rows.sort((a,b)=>(b.time||0)-(a.time||0));renderGallery();
+ if(migrated)toast(`기존 v3.1 GIF ${migrated}개를 내 라이브러리에 불러왔습니다.`);
 }
 async function saveConvertedLibraryGif(name,frames,delays,fps,n){
  if(!Array.isArray(frames)||!frames.length||frames.length>120||n!==32)throw Error('라이브러리는 32×32 · 최대 120프레임으로 변환 후 저장합니다.');

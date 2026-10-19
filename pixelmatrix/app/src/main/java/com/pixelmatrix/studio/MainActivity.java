@@ -402,13 +402,13 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface public String appVersion(){
             try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}
-            catch(Exception e){return "3.3.0";}
+            catch(Exception e){return "3.5.0";}
         }
         @JavascriptInterface public String decodeGifFrames(String base64,int target,int maxFrames,String fit){
             try{
                 if(target!=16&&target!=32&&target!=64)throw new Exception("출력 해상도 오류");
                 byte[] bytes=Base64.decode(base64,Base64.DEFAULT);
-                if(bytes.length>50*1024*1024)throw new Exception("50MB를 초과한 GIF");
+                if(bytes.length>80*1024*1024)throw new Exception("80MB를 초과한 GIF");
                 Movie movie=Movie.decodeByteArray(bytes,0,bytes.length);
                 if(movie==null)throw new Exception("Android 기본 디코더에서 처리할 수 없는 GIF");
                 int total=movie.duration();if(total<=0)total=1000;

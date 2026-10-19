@@ -5,7 +5,7 @@ android {
     compileSdk 35
     defaultConfig {
         applicationId 'com.pixelmatrix.studio.stable'
-        if (project.hasProperty('cleanInstall')) applicationIdSuffix '.clean35'
+        if (project.hasProperty('cleanInstall')) applicationIdSuffix '.clean'
         minSdk 26
         targetSdk 34
         versionCode 3500

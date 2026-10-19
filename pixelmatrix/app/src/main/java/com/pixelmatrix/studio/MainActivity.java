@@ -44,6 +44,10 @@ import org.json.JSONArray;
 import java.util.Calendar;
 import android.view.View;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.io.OutputStream;
 import org.json.JSONException;
 import java.io.InputStream;
@@ -106,6 +110,7 @@ public class MainActivity extends Activity {
         WebSettings settings=web.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
+        settings.setDatabaseEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
         settings.setDefaultTextEncodingName("UTF-8");
@@ -408,7 +413,7 @@ public class MainActivity extends Activity {
             try{
                 if(target!=16&&target!=32&&target!=64)throw new Exception("출력 해상도 오류");
                 byte[] bytes=Base64.decode(base64,Base64.DEFAULT);
-                if(bytes.length>80*1024*1024)throw new Exception("80MB를 초과한 GIF");
+                if(bytes.length>50*1024*1024)throw new Exception("50MB를 초과한 GIF");
                 Movie movie=Movie.decodeByteArray(bytes,0,bytes.length);
                 if(movie==null)throw new Exception("Android 기본 디코더에서 처리할 수 없는 GIF");
                 int total=movie.duration();if(total<=0)total=1000;
@@ -432,6 +437,54 @@ public class MainActivity extends Activity {
                 out.put("durationMs",total);out.put("sourceFrames",n);return out.toString();
             }catch(Exception ex){try{return new JSONObject().put("error",ex.getMessage()).toString();}
                 catch(Exception ignored){return "{\"error\":\"unknown\"}";}}
+        }
+
+        private File libraryFolder(){
+            File folder=new File(getFilesDir(),"gif-library-v1");
+            if(!folder.exists())folder.mkdirs();
+            return folder;
+        }
+        @JavascriptInterface public String saveLibraryItem(String json){
+            try{
+                if(json==null || json.length()>17_000_000)throw new Exception("저장 용량 제한(17MB)");
+                JSONObject item=new JSONObject(json);
+                String id=item.optString("id","");
+                if(!id.matches("user_[0-9]{10,17}_[a-z0-9]{3,10}"))throw new Exception("GIF 식별자가 올바르지 않습니다.");
+                if(!item.optBoolean("custom")||!"32x32".equals(item.optString("resolution")))throw new Exception("32×32 개인 GIF만 저장됩니다.");
+                File folder=libraryFolder();
+                File[] existing=folder.listFiles((f,name)->name.endsWith(".json"));
+                if(existing!=null && existing.length>=250)throw new Exception("내 GIF 보관함은 최대 250개입니다.");
+                File tmp=new File(folder,id+".tmp"),dest=new File(folder,id+".json");
+                byte[] data=json.getBytes(StandardCharsets.UTF_8);
+                try(FileOutputStream fos=new FileOutputStream(tmp)){fos.write(data);fos.getFD().sync();}
+                if(!tmp.renameTo(dest)){
+                    try(FileOutputStream fos=new FileOutputStream(dest)){fos.write(data);fos.getFD().sync();}
+                    tmp.delete();
+                }
+                return new JSONObject().put("ok",true).toString();
+            }catch(Exception ex){try{return new JSONObject().put("error",ex.getMessage()).toString();}catch(Exception ignored){return "{\"error\":\"save failed\"}";}}
+        }
+        @JavascriptInterface public String loadLibraryItems(){
+            try{
+                JSONArray arr=new JSONArray();File folder=libraryFolder();
+                File[] files=folder.listFiles((f,name)->name.matches("user_[0-9]{10,17}_[a-z0-9]{3,10}\\.json"));
+                if(files!=null){
+                    long loadedBytes=0;
+                    Arrays.sort(files,(a,b)->Long.compare(b.lastModified(),a.lastModified()));
+                    for(int i=0;i<Math.min(files.length,250);i++){
+                        if(files[i].length()>17_000_000)continue;
+                        if(loadedBytes+files[i].length()>24_000_000)break;
+                        loadedBytes+=files[i].length();
+                        ByteArrayOutputStream b=new ByteArrayOutputStream();
+                        try(FileInputStream stream=new FileInputStream(files[i])){
+                            byte[] buf=new byte[8192];int n;
+                            while((n=stream.read(buf))!=-1)b.write(buf,0,n);
+                        }
+                        try{arr.put(new JSONObject(new String(b.toByteArray(),StandardCharsets.UTF_8)));}catch(Exception ignored){}
+                    }
+                }
+                return new JSONObject().put("items",arr).toString();
+            }catch(Exception ex){try{return new JSONObject().put("error",ex.getMessage()).toString();}catch(Exception ignored){return "{\"error\":\"load failed\"}";}}
         }
 
         @JavascriptInterface public String galleryGif(String fileName){

@@ -1,14 +1,12 @@
-# PixelMatrix Studio v3.2
+PixelMatrix Studio v3.5.0
 
-- Default canvas is view-only; button `편집하기` unlocks pixel tools.
-- `수정 저장` commits edits to local project autosave; `취소` discards them.
-- Explicit `파일로 내보내기` still saves a portable project JSON.
-- General GIF input: 16 / 32 / 64 pixel output, frame limit 30/60/120, speed and color quantization options.
-- Android GIF fallback decoder is used when the pure JS GIF decoder cannot process a file. Input up to 50MB.
-- Built-in 200 animated examples in ten categories; file import does not require original input to be 32×32.
-- BLE connection and device commands retained; not verified on a physical device.
-- Stable application ID `com.pixelmatrix.studio.stable`, version 3.2.0 (3200).
-- Do not distribute as an in-place update to a differently signed / differently packaged earlier APK.
+- 기존 앱의 안정 버전(com.pixelmatrix.studio.stable) 유지
+- GIF 200종 내장 유지
+- 일반 GIF 자동 32×32 변환 후 내 GIF 보관함 저장
+- 안드로이드 앱 내부 개인 GIF 보관(IndexedDB와 동시 저장)
+- 보기 전용 편집기: 편집하기 → 수정 → 저장/취소
+- 저장 전 자동 BLE 픽셀 전송 금지
+- 원본 GIF 속도 및 다중 프레임 최대한 유지
+- 다른 설치 패키지(.clean)도 별도 제공
 
-- `내 GIF를 라이브러리에 추가`: 변환한 GIF를 IndexedDB에 보관하고 갤러리의 `내 GIF` 필터에서 다시 열 수 있습니다. 앱 데이터를 삭제하면 보관분도 삭제되므로 프로젝트 파일 백업을 권장합니다.
-- Stable APK와 Clean-Install APK(별도 패키지)를 제공할 수 있습니다. 서로 다른 패키지끼리는 데이터를 공유하지 않습니다.
+검증 범위: 소스 정적 검사, JavaScript 문법, Android Gradle 빌드, 서명 및 APK 내 GIF 포함 검사. 실제 기기 통신 실기 검증은 별도 필요.

@@ -81,7 +81,7 @@ jobs:
           APK=app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/clean-badging.txt | head -n 12
-          grep -q "name='com.pixelmatrix.studio.stable.clean'" /tmp/clean-badging.txt
+          grep -q "name='com.pixelmatrix.studio.stable.clean34'" /tmp/clean-badging.txt
           grep -q "versionName='3.4.0'" /tmp/clean-badging.txt
           mkdir -p app/build/clean-install
           cp "$APK" app/build/clean-install/PixelMatrixStudio-v3.4-Clean.apk

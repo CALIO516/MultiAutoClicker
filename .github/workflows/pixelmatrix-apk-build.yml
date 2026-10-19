@@ -41,9 +41,9 @@ jobs:
           assert all((r/'gallery'/s['file']).is_file() for s in c['samples'])
           a=pathlib.Path('app/build.gradle').read_text()
           assert "applicationId 'com.pixelmatrix.studio.stable'" in a
-          assert 'versionCode 3300' in a and "versionName '3.3.0'" in a
+          assert 'versionCode 3400' in a and "versionName '3.4.0'" in a
           b=(r/'index.html').read_text()
-          assert 'commitEditBtn' in b and 'discardEditBtn' in b and 'decodeGifFrames' in b and 'libraryGifFile' in b and 'gifLibraryDirectBtn' in b
+          assert 'commitEditBtn' in b and 'discardEditBtn' in b and 'decodeGifFrames' in b and 'libraryGifFile' in b and 'gifLibraryDirectBtn' in b and 'saveConvertedLibraryGif' in b
           print('Gallery, edit-mode, GIF decoder, version consistent')
           PYV
       - name: Validate JavaScript without launching app
@@ -69,10 +69,10 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/pixelmatrix-badging.txt | head -n 12
           grep -q "name='com.pixelmatrix.studio.stable'" /tmp/pixelmatrix-badging.txt
-          grep -q "versionName='3.3.0'" /tmp/pixelmatrix-badging.txt
+          grep -q "versionName='3.4.0'" /tmp/pixelmatrix-badging.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-v3.3-APK
+          name: PixelMatrixStudio-v3.4-APK
           path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Build clean-install companion package
@@ -82,10 +82,10 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/clean-badging.txt | head -n 12
           grep -q "name='com.pixelmatrix.studio.stable.clean'" /tmp/clean-badging.txt
-          grep -q "versionName='3.3.0'" /tmp/clean-badging.txt
+          grep -q "versionName='3.4.0'" /tmp/clean-badging.txt
           mkdir -p app/build/clean-install
-          cp "$APK" app/build/clean-install/PixelMatrixStudio-v3.3-Clean.apk
+          cp "$APK" app/build/clean-install/PixelMatrixStudio-v3.4-Clean.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-v3.3-Clean-APK
-          path: pixelmatrix/app/build/clean-install/PixelMatrixStudio-v3.3-Clean.apk
+          name: PixelMatrixStudio-v3.4-Clean-APK
+          path: pixelmatrix/app/build/clean-install/PixelMatrixStudio-v3.4-Clean.apk

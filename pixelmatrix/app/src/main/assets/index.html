@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=auto"><meta name="theme-color" content="#090b10">
-<title>PixelMatrix Studio 2.6 — LED 픽셀 스튜디오</title>
+<title>PixelMatrix Studio 3.4 — LED 픽셀 스튜디오</title>
 <style>
 :root{--bg:#0a0c13;--pane:#141824;--pane2:#1a2030;--line:#293247;--text:#eff2fb;--sub:#9aa8c1;--accent:#79e0c7;--gold:#ffd28f;--rad:17px;--shadow:0 18px 50px #0004;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 5%,#18263c 0,transparent 33%),radial-gradient(ellipse at 90% 0,#271d36 0,transparent 30%),var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,'Noto Sans KR',sans-serif;min-height:100vh}
@@ -351,12 +351,12 @@ body.editing .editModeState{color:#dce2ff}
 .advancedGifOptions .gifSettings{margin-top:10px}
 #gifLibraryDirectBtn{min-height:52px;font-weight:780;line-height:1.4}
 #gifImportBtn,#gifLibrarySaveBtn{min-height:43px;font-size:12px;line-height:1.4}
-@media(max-width:700px){.galleryCategories{display:none}.galleryIntro p{font-size:11px}.rightHeader{margin-bottom:8px!important}.galleryGrid{gap:9px}.galleryItem{padding:8px 5px}}
+@media(max-width:700px){.galleryCategories{display:none}.galleryIntro p{font-size:11px}.rightHeader{margin-bottom:9px!important}.galleryIntro{margin-bottom:12px}.galleryInfo{padding:5px 0}.galleryPanel{border:0}.gifStatus{line-height:1.5}.galleryGrid{gap:9px}.galleryItem{padding:8px 5px}}
 </style>
 </head>
 <body>
 <div class="page">
-<header class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="12" y="3" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="3" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="12" y="12" width="6" height="6" rx="1" fill="#102b32"/><rect x="21" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="3" y="21" width="6" height="6" rx="1" fill="#102b32"/><rect x="12" y="21" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="21" width="6" height="6" rx="1" fill="#102b32"/></svg></div><div><h1>PIXELMATRIX <span class="brandSub">Studio</span> <span style="font-size:11px;vertical-align:middle;border-radius:999px;border:1px solid #7182a7;background:#253047;color:#c9e0ff;padding:3px 7px;letter-spacing:0">v3.3.0</span></h1><p>픽셀 아트 · GIF · LED 디스플레이</p></div><div class="quickConnect"><button id="topConnectBtn">⌁ 기기 연결</button></div></div><div class="topBtns"><button id="newBtn"><span class="topActionIcon">＋</span><span>새 작업</span></button><button id="gifTopBtn"><span class="topActionIcon">▦</span><span>GIF 변환</span></button><button id="openBtn"><span class="topActionIcon">↥</span><span>프로젝트<br>열기</span></button><button id="projectSaveBtn" class="primary"><span class="topActionIcon">✓</span><span>파일로<br>내보내기</span></button></div></header>
+<header class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 30 30" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="12" y="3" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="3" width="6" height="6" rx="1" fill="#132f36"/><rect x="3" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="12" y="12" width="6" height="6" rx="1" fill="#102b32"/><rect x="21" y="12" width="6" height="6" rx="1" fill="#265d66"/><rect x="3" y="21" width="6" height="6" rx="1" fill="#102b32"/><rect x="12" y="21" width="6" height="6" rx="1" fill="#265d66"/><rect x="21" y="21" width="6" height="6" rx="1" fill="#102b32"/></svg></div><div><h1>PIXELMATRIX <span class="brandSub">Studio</span> <span style="font-size:11px;vertical-align:middle;border-radius:999px;border:1px solid #7182a7;background:#253047;color:#c9e0ff;padding:3px 7px;letter-spacing:0">v3.4.0</span></h1><p>픽셀 아트 · GIF · LED 디스플레이</p></div><div class="quickConnect"><button id="topConnectBtn">⌁ 기기 연결</button></div></div><div class="topBtns"><button id="newBtn"><span class="topActionIcon">＋</span><span>새 작업</span></button><button id="gifTopBtn"><span class="topActionIcon">▦</span><span>GIF 변환</span></button><button id="openBtn"><span class="topActionIcon">↥</span><span>프로젝트<br>열기</span></button><button id="projectSaveBtn" class="primary"><span class="topActionIcon">✓</span><span>파일로<br>내보내기</span></button></div></header>
 <nav class="mobileNav" aria-label="작업 메뉴"><button data-goto="scene" class="on" aria-label="픽셀 편집"><span class="navGlyph" aria-hidden="true">▦</span><span>편집</span></button><button data-goto="left" aria-label="그리기 도구"><span class="navGlyph" aria-hidden="true">✎</span><span>도구</span></button><button data-goto="right" aria-label="GIF와 샘플"><span class="navGlyph" aria-hidden="true">▣</span><span>GIF</span></button><button data-goto="device" aria-label="LED 기기"><span class="navGlyph" aria-hidden="true">⌁</span><span>기기</span></button></nav>
 <div class="work"><aside class="card left" id="left"><h2>도구 상자 <span class="badgeNum" id="sizeTag">32×32</span></h2><div class="toolbar" id="tools"><button class="tool on" data-tool="pen" title="그리기">✎<span>펜</span></button><button class="tool" data-tool="erase" title="지우개">⌫<span>지우기</span></button><button class="tool" data-tool="fill" title="영역 채우기">▨<span>채우기</span></button><button class="tool" data-tool="pick" title="색상 선택">◉<span>스포이트</span></button><button class="tool" data-tool="line" title="선">╱<span>직선</span></button><button class="tool" data-tool="rect" title="사각형">▢<span>사각형</span></button><button class="tool" data-tool="ellipse" title="원">◯<span>원</span></button><button class="tool" data-tool="spark" title="무작위 반짝임">✦<span>반짝임</span></button></div>
 <div class="field"><label for="color">현재 색상</label><div class="cflex"><input type="color" id="color" value="#ffcf94" aria-label="현재 색상"><input id="hexColor" class="fill" value="#FFCF94" maxlength="7" aria-label="16진수 색상"><button id="defaultPaletteBtn" title="팔레트 전환">⇄</button></div><div class="swatches" id="swatches"></div></div>
@@ -577,7 +577,7 @@ function gifLzwDecode(stream, minSize, expected){
 function parseGIF(data){
  let at=0;const byte=()=>{if(at>=data.length)throw Error('GIF가 중간에서 잘렸습니다.');return data[at++]},word=()=>byte()|(byte()<<8),skipBlock=()=>{while(true){const n=byte();if(!n)break;if(at+n>data.length)throw Error('GIF 확장 데이터가 불완전합니다.');at+=n}},readBlock=()=>{const parts=[];let total=0;while(true){const n=byte();if(!n)break;if(at+n>data.length)throw Error('GIF 이미지 데이터가 불완전합니다.');parts.push(data.subarray(at,at+n));at+=n;total+=n}const combined=new Uint8Array(total);let pos=0;for(const part of parts){combined.set(part,pos);pos+=part.length}return combined};
  if(data.length<13)throw Error('GIF 파일이 너무 짧습니다.');const head=String.fromCharCode(...data.subarray(0,6));if(head!=='GIF89a'&&head!=='GIF87a')throw Error('GIF87a/GIF89a 파일만 지원합니다.');at=6;
- const width=word(),height=word();if(!width||!height||width>1600||height>1600||width*height>1600000)throw Error('원본 GIF는 최대 160만 픽셀까지 지원합니다.');const packed=byte(),bg=byte();byte();
+ const width=word(),height=word();if(!width||!height||width>2048||height>2048||width*height>2200000)throw Error('원본 GIF는 최대 160만 픽셀까지 지원합니다.');const packed=byte(),bg=byte();byte();
  const readColors=count=>{if(at+count*3>data.length)throw Error('GIF 팔레트를 읽지 못했습니다.');const pal=data.subarray(at,at+count*3);at+=count*3;return pal};
  const global=(packed&128)?readColors(1<<((packed&7)+1)):null;
  let gce={delay:100,disposal:0,transparent:-1};const frames=[];
@@ -586,7 +586,7 @@ function parseGIF(data){
    else skipBlock();continue}
   if(tag!==0x2c)throw Error('알 수 없는 GIF 블록입니다.');
   const left=word(),top=word(),w=word(),h=word(),flg=byte();if(!w||!h||w*h>1600000)throw Error('GIF 프레임 크기가 올바르지 않습니다.');const local=(flg&128)?readColors(1<<((flg&7)+1)):null;
-  const minCode=byte(),compressed=readBlock();frames.push({left,top,width:w,height:h,interlace:!!(flg&64),palette:local||global,code:minCode,compressed,delay:gce.delay,disposal:gce.disposal,transparent:gce.transparent});if(frames.length>1800)throw Error('1800프레임 이하 GIF만 지원합니다.');gce={delay:100,disposal:0,transparent:-1};
+  const minCode=byte(),compressed=readBlock();frames.push({left,top,width:w,height:h,interlace:!!(flg&64),palette:local||global,code:minCode,compressed,delay:gce.delay,disposal:gce.disposal,transparent:gce.transparent});if(frames.length>2400)throw Error('2400프레임 이하 GIF만 지원합니다.');gce={delay:100,disposal:0,transparent:-1};
  }
  if(!frames.length)throw Error('GIF에 이미지 프레임이 없습니다.');return {width,height,bg,global,frames};
 }
@@ -649,7 +649,7 @@ async function importGIF(file,libraryMode=false){
   if(file.size>50*1024*1024)throw Error('GIF 파일은 최대 50MB까지 지원합니다. 용량을 줄여 주세요.');
   button.disabled=true;status.classList.add('busy');status.textContent='GIF 파일 분석 중…';await new Promise(resolve=>setTimeout(resolve,0));
   const bytes=new Uint8Array(await file.arrayBuffer());
-  const options={target:libraryMode?32:+$('gifTarget').value,fit:$('gifFit').value,colors:+$('gifColors').value,smooth:$('gifResample').value==='smooth',speed:+$('gifSpeed').value,limit:libraryMode?Math.min(60,+$('gifLimit').value):+$('gifLimit').value,brightness:+$('gifBrightness').value/100,dark:+$('gifDark').value,dither:$('gifDither').checked};
+  const options={target:libraryMode?32:+$('gifTarget').value,fit:$('gifFit').value,colors:+$('gifColors').value,smooth:$('gifResample').value==='smooth',speed:+$('gifSpeed').value,limit:libraryMode?Math.min(120,+$('gifLimit').value):+$('gifLimit').value,brightness:+$('gifBrightness').value/100,dark:+$('gifDark').value,dither:$('gifDither').checked};
   let parsed=null, converted, originalSec=0, count=0, usedFallback=false;
   try{
     parsed=parseGIF(bytes);count=parsed.frames.length;originalSec=parsed.frames.reduce((sum,f)=>sum+f.delay,0)/1000;
@@ -662,11 +662,18 @@ async function importGIF(file,libraryMode=false){
     converted=await convertedNativeFrames(fallback,options);count=fallback.sourceFrames||fallback.frames.length;
     originalSec=(fallback.durationMs||0)/1000;usedFallback=true;
   }
+  if(libraryMode){
+   try{
+    await saveConvertedLibraryGif(file.name.replace(/\\.gif$/i,''),converted.result,converted.delays,0,32);
+    status.textContent='✓ 내 GIF 라이브러리에 등록했습니다. · 원본 '+(parsed?parsed.width+'×'+parsed.height:'호환 변환')+' / '+count+'프레임 → 32×32 / '+converted.result.length+'프레임 · 현재 프로젝트 유지';
+    toast('일반 GIF를 32×32로 변환해 라이브러리에 저장했습니다.');return true;
+   }catch(storeError){throw Error('GIF 변환은 성공했지만 라이브러리 저장에 실패했습니다: '+storeError.message);}
+  }
   if(editMode){if(!await confirmModal('저장되지 않은 편집', '기존 편집 중인 수정사항이 저장되지 않았습니다. 수정사항을 버리고 GIF를 가져오시겠습니까?')){status.textContent='현재 편집 유지 · 변환 취소';return false}discardEdit();}
   if(s.frames.some(f=>f.some(c=>c!==null))||s.frames.length>1){if(!await confirmModal('GIF 애니메이션으로 교체',`현재 작업을 ${converted.result.length}프레임 GIF 변환 결과로 바꿉니다. 기존 작업은 프로젝트 파일로 백업할 수 있습니다.`)){status.textContent='가져오기가 취소되었습니다.';return false}}
   stop();checkpoint();s.size=options.target;s.frames=converted.result;s.delays=converted.delays;s.fps=0;s.current=0;s.name=file.name.replace(/\.gif$/i,'').slice(0,70)||'GIF 픽셀 변환';syncUI();persist();
   status.textContent=`✓ ${parsed?parsed.width+'×'+parsed.height:'Android 호환 변환'} GIF · ${count}장 → ${s.frames.length}장 / ${s.size}×${s.size}\n원본 ${originalSec.toFixed(1)}초 · 변환 약 ${(s.delays.reduce((a,b)=>a+b,0)/1000).toFixed(1)}초 · ${options.colors}색`;
-  if(libraryMode){const ok=await addMyGif();if(!ok){status.textContent+='\n라이브러리 저장에 실패했습니다. 변환한 결과는 편집기에 유지됩니다.';return false}status.textContent+='\n✓ 내 GIF 라이브러리에 추가됨';toast(`GIF 자동 변환·저장 완료 · ${s.frames.length}프레임`);return true;}
+  
   toast(`움직이는 GIF 변환 완료 · ${s.frames.length}프레임`);return true;
  }catch(e){status.textContent='변환 실패: '+(e.message||String(e));toast('GIF 변환 실패: '+e.message)}finally{button.disabled=false;status.classList.remove('busy')}
 }
@@ -802,17 +809,24 @@ function gifLibraryDb(){return new Promise((resolve,reject)=>{
 async function loadMyGallery(){const db=await gifLibraryDb();const a=await new Promise((resolve,reject)=>{
  const q=db.transaction('samples','readonly').objectStore('samples').getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)});
  db.close();myGalleryItems=a.sort((a,b)=>(b.time||0)-(a.time||0));renderGallery();}
+async function saveConvertedLibraryGif(name,frames,delays,fps,n){
+ if(!Array.isArray(frames)||!frames.length||frames.length>120||n!==32)throw Error('라이브러리는 32×32 · 1~120프레임으로 변환 후 저장합니다.');
+ const blob=gifEncode(frames,n,fps,delays);
+ if(blob.size>12*1024*1024)throw Error('변환한 GIF가 12MB를 초과했습니다. 최대 프레임을 줄여주세요.');
+ const item={id:'user_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),time:Date.now(),name:(name||'내 GIF').slice(0,70),category:'my',categoryName:'내 GIF',frames:frames.length,
+  durationMs:delays.reduce((a,b)=>a+b,0),resolution:n+'x'+n,file:'',b64:bytesToB64(new Uint8Array(await blob.arrayBuffer())),custom:true};
+ const db=await gifLibraryDb();
+ await new Promise((resolve,reject)=>{const tx=db.transaction('samples','readwrite');tx.objectStore('samples').put(item);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+ db.close();myGalleryItems.unshift(item);galleryCategory='my';galleryLimit=20;renderGallery();
+ return item;
+}
 async function addMyGif(){
- if(editMode){toast('먼저 수정 저장 후 라이브러리에 추가해주세요.');return}
+ if(editMode){toast('먼저 수정 저장 후 라이브러리에 추가해주세요.');return false;}
  try{
-  const blob=gifEncode(s.frames,sz(),s.fps,s.delays);
-  if(blob.size>12*1024*1024)throw Error('GIF 용량이 12MB를 초과했습니다. 프레임 수나 해상도를 줄여주세요.');
-  const item={id:'user_'+Date.now(),time:Date.now(),name:s.name||'내 GIF',category:'my',categoryName:'내 GIF',frames:s.frames.length,
-   durationMs:s.delays.reduce((a,b)=>a+b,0),resolution:sz()+'x'+sz(),file:'',b64:bytesToB64(new Uint8Array(await blob.arrayBuffer())),custom:true};
-  const db=await gifLibraryDb();await new Promise((resolve,reject)=>{
-   const tx=db.transaction('samples','readwrite');tx.objectStore('samples').put(item);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
-  });db.close();myGalleryItems.unshift(item);galleryCategory='my';galleryLimit=20;renderGallery();toast('내 라이브러리에 저장했습니다.');return true;
- }catch(e){toast('라이브러리 저장 실패: '+e.message);return false}
+  if(sz()!==32){toast('LED용 라이브러리는 32×32로 변환한 후 등록해주세요.');return false;}
+  await saveConvertedLibraryGif(s.name,s.frames,s.delays,s.fps,sz());
+  toast('내 라이브러리에 저장했습니다.');return true;
+ }catch(e){toast('라이브러리 저장 실패: '+e.message);return false;}
 }
 
 function galleryFiltered(){const q=$('gallerySearch').value.toLowerCase().trim();return galleryAllItems().filter(x=>(galleryCategory==='all'||x.category===galleryCategory)&&(!q||(x.name+' '+x.categoryName+' '+x.id).toLowerCase().includes(q)))}

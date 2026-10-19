@@ -8,8 +8,8 @@ android {
         if (project.hasProperty('cleanInstall')) applicationIdSuffix '.clean'
         minSdk 26
         targetSdk 34
-        versionCode 3300
-        versionName '3.3.0'
+        versionCode 3400
+        versionName '3.4.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

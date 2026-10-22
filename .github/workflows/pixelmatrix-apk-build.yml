@@ -1,4 +1,4 @@
-name: PixelMatrix Studio v3.5 stable APK
+name: PixelMatrix Studio v4.0 stable APK
 on:
   workflow_dispatch:
   push:
@@ -41,7 +41,7 @@ jobs:
           assert all((r/'gallery'/s['file']).is_file() for s in c['samples'])
           a=pathlib.Path('app/build.gradle').read_text()
           assert "com.pixelmatrix.studio.stable" in a
-          assert 'versionCode 3500' in a and "versionName '3.5.0'" in a
+          assert 'versionCode 4000' in a and "versionName '4.0.0'" in a
           b=(r/'index.html').read_text()
           assert 'commitEditBtn' in b and 'discardEditBtn' in b and 'decodeGifFrames' in b
           print('Gallery, edit-mode, GIF decoder, version consistent')
@@ -69,10 +69,10 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/pixelmatrix-badging.txt | head -n 12
           grep -q "name='com.pixelmatrix.studio.stable'" /tmp/pixelmatrix-badging.txt
-          grep -q "versionName='3.5.0'" /tmp/pixelmatrix-badging.txt
+          grep -q "versionName='4.0.0'" /tmp/pixelmatrix-badging.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-v3.5-APK
+          name: PixelMatrixStudio-v4.0-APK
           path: pixelmatrix/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Build clean-install companion package
@@ -82,10 +82,10 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/clean-badging.txt | head -n 12
           grep -q "name='com.pixelmatrix.studio.stable.clean'" /tmp/clean-badging.txt
-          grep -q "versionName='3.5.0'" /tmp/clean-badging.txt
+          grep -q "versionName='4.0.0'" /tmp/clean-badging.txt
           mkdir -p app/build/clean-install
-          cp "$APK" app/build/clean-install/PixelMatrixStudio-v3.5-Clean.apk
+          cp "$APK" app/build/clean-install/PixelMatrixStudio-v4.0-Clean.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: PixelMatrixStudio-v3.5-Clean-APK
-          path: pixelmatrix/app/build/clean-install/PixelMatrixStudio-v3.5-Clean.apk
+          name: PixelMatrixStudio-v4.0-Clean-APK
+          path: pixelmatrix/app/build/clean-install/PixelMatrixStudio-v4.0-Clean.apk

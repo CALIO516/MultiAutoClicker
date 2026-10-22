@@ -407,7 +407,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface public String appVersion(){
             try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}
-            catch(Exception e){return "3.5.0";}
+            catch(Exception e){return "4.0.0";}
         }
         @JavascriptInterface public String decodeGifFrames(String base64,int target,int maxFrames,String fit){
             try{
